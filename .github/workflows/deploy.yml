@@ -2,7 +2,7 @@ name: Update data and deploy
 
 on:
   push:
-    branches: [claude/dram-nand-stock-chart-ei1l18]
+    branches: [main]
   schedule:
     # 09:10 UTC = 18:10 KST. 한국 증시 마감(06:30 UTC) 이후이고,
     # DRAMeXchange 가 당일 현물가를 올린 뒤이며, 미국 종가는 전일치가 들어온다.

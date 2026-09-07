@@ -130,16 +130,22 @@ node scripts/fetch-dramexchange.mjs --drop-placeholders  # 시드 샘플 행 일
 2. `scripts/build-data.mjs` 로 주가·현물가 JSON 생성
 3. `next build` (정적 export) → GitHub Pages 배포
 
-평일 09:10 UTC(18:10 KST)에 자동 실행되고, push 할 때와 Actions 탭의
-**Run workflow** 로도 돕니다. 공개 리포지토리라 배포된 링크는 로그인 없이
+평일 09:10 UTC(18:10 KST)에 자동 실행되고, `main` 에 push 할 때와 Actions 탭의
+**Run workflow** 로도 돕니다. 예약 실행은 기본 브랜치에서만 동작하므로 기본
+브랜치는 `main` 이어야 합니다. 공개 리포지토리라 배포된 링크는 로그인 없이
 누구나 열 수 있습니다.
 
 ### 최초 1회 설정
 
-리포지토리 **Settings → Pages → Build and deployment → Source** 를
-**GitHub Actions** 로 바꿔주세요. 이 한 번만 하면 이후는 전부 자동입니다.
-(`Settings → Actions → General → Workflow permissions` 가 *Read and write*
-여야 CSV 커밋이 됩니다.)
+1. **Settings → Pages → Build and deployment → Source** = `GitHub Actions`
+2. **Settings → Environments → `github-pages` → Deployment branches and tags**
+   에 배포할 브랜치가 허용되어 있어야 합니다. 기본값이 특정 브랜치로 잠겨 있어
+   `Branch "..." is not allowed to deploy to github-pages` 로 실패하는 일이
+   흔합니다.
+3. **Settings → Actions → General → Workflow permissions** = *Read and write*
+   (데이터 커밋에 필요)
+
+이 세 가지만 맞으면 이후는 전부 자동입니다.
 
 다른 곳에 올리고 싶다면 Vercel도 그대로 됩니다. 저장소를 연결해 기본 설정으로
 배포하면 되고, 이때는 `NEXT_PUBLIC_BASE_PATH` 를 비워두면 됩니다.

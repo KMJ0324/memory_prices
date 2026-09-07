@@ -8,6 +8,11 @@ on:
     # DRAMeXchange 가 당일 현물가를 올린 뒤이며, 미국 종가는 전일치가 들어온다.
     - cron: "10 9 * * 1-5"
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "CSV를 쓰지 않고 파싱 결과만 확인 (HTML 스냅샷 아티팩트 포함)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -36,10 +41,13 @@ jobs:
         # 파서가 깨져도 사이트를 내리지는 않는다. 기존 CSV로 그대로 배포하고,
         # 실패 사실은 아래 스냅샷 아티팩트와 요약으로 남긴다.
         continue-on-error: true
-        run: node scripts/fetch-dramexchange.mjs --dump /tmp/dramexchange.html
+        run: |
+          node scripts/fetch-dramexchange.mjs --dump /tmp/dramexchange.html \
+            ${{ inputs.dry_run && '--dry-run' || '' }}
 
-      - name: Upload page snapshot when parsing fails
-        if: steps.spot.outcome == 'failure'
+      - name: Upload page snapshot
+        # 실패했을 때, 그리고 수동 점검 실행일 때 원본 HTML을 남긴다.
+        if: steps.spot.outcome == 'failure' || inputs.dry_run
         uses: actions/upload-artifact@v4
         with:
           name: dramexchange-html

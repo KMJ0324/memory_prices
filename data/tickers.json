@@ -45,6 +45,7 @@
     ],
     "label": "SK하이닉스 ADR",
     "currency": "USD",
-    "color": "#ff9db0"
+    "color": "#ff9db0",
+    "optional": true
   }
 ]

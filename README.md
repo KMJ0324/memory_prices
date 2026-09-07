@@ -2,7 +2,8 @@
 
 DRAM · NAND 현물가와 메모리 반도체 종목 주가를 한 차트에 겹쳐 보는 Next.js 앱.
 
-- **현물가**: DDR5 16Gb(4800/5600, eTT), DDR4 8Gb(3200, eTT), NAND 512Gb TLC, NAND 128Gb TLC
+- **현물가(spot)**: DDR5 16Gb(4800/5600, eTT), DDR4 8Gb(3200, eTT), NAND 512Gb TLC, NAND 128Gb TLC
+- **고정거래가(contract)**: TrendForce 공개 표의 DRAM·NAND 품목 전체
 - **주가**: 삼성전자(005930.KS), 삼성전자우(005935.KS), SK하이닉스(000660.KS), 마이크론(MU)
 
 ## 실행
@@ -48,7 +49,13 @@ npm run dev     # http://localhost:3000
 > 쓰거나 보정 로직을 넣어야 합니다.
 
 일부 종목을 못 받아와도 나머지는 그대로 그려지고, 실패한 종목은 화면 상단
-경고로 표시됩니다. 다만 주가가 **한 종목도** 안 들어오거나 현물가 계열이
+경고로 표시됩니다. `optional: true` 로 표시한 종목은 실패해도 화면 경고를
+띄우지 않고 `data/last-build.json` 에만 사유가 남습니다 — 공유하는 페이지에
+상시 경고가 붙지 않게 하기 위함입니다.
+
+**SK하이닉스 ADR(HXSCL)** 이 현재 그 상태입니다. OTC 종목이라 네이버가 커버하지
+않고(모든 심볼 변형이 빈 배열), Stooq 는 러너에서 봇 차단, Yahoo 는 429 입니다.
+키를 쓰는 소스(Alpha Vantage·Twelve Data 등)를 붙이면 살릴 수 있습니다. 다만 주가가 **한 종목도** 안 들어오거나 현물가 계열이
 하나도 없으면 배포를 중단합니다 — 반쪽짜리를 새로 올리느니 직전 배포를
 그대로 두는 편이 낫기 때문입니다.
 
@@ -81,6 +88,29 @@ date,series,price,unit,source
 `MEMORY_API_KEY`) 을 설정하세요. 그 URL을 CSV 대신 호출하고, 실패하면 자동으로
 CSV로 폴백합니다. 응답은 `{ "series": Series[] }` 형태여야 하며 타입은
 `src/lib/types.ts` 참고.
+
+### 고정거래가 — `data/memory-contract.csv`
+
+`scripts/fetch-trendforce.mjs` 가 TrendForce 가격 페이지에서 **"Contract Price"
+섹션의 표를 자동으로 찾아** 그 안의 모든 품목을 수집합니다. 품목을 미리
+열거하지 않으므로 TrendForce 가 항목을 추가해도 따라갑니다.
+
+```csv
+date,series,price,unit,source,period
+2026-07-31,CONTRACT_DRAM_DDR4_8Gb_1Gx8,24.000,USD,trendforce,2H Jul
+```
+
+- `date` 는 섹션의 `Last Update`, `period` 는 제목의 기간 표기(`2H Jul`, `2Q 26`)
+- 가격은 현물가와 같은 **`Session Average`** 열
+- 페이지 목록은 `scripts/trendforce-map.json` 의 `pages`. `featured` 는 차트에서
+  기본으로 켤 계열, `labels` 는 한글 표기입니다(없으면 품목명에서 자동 생성)
+
+> 한 페이지에 현물가 표와 고정거래가 표가 함께 있고 사이드바에도 "Contract
+> Price" 링크가 있어서, 단순히 문자열이 있는지만 보면 현물가 표를 고정거래가로
+> 오인합니다. 파서는 **표에 가장 가까운 제목**이 무엇인지로 판정합니다.
+>
+> 상세 표는 Gold+ 회원 전용이라 공개 표만 수집합니다. 공개 표는 최신 확정치보다
+> 한 주기 뒤처질 수 있습니다(예: 9월 초에도 `2H Jul` 값 노출).
 
 ## 현물가 자동 갱신 (DRAMeXchange)
 

@@ -246,6 +246,7 @@ async function fetchTicker(ticker) {
 
 async function buildStocks(tickers) {
   const warnings = [];
+  const optionalFailures = [];
   const settled = await Promise.allSettled(tickers.map(fetchTicker));
   const series = [];
 
@@ -260,12 +261,16 @@ async function buildStocks(tickers) {
       );
     } else {
       const msg = outcome.reason instanceof Error ? outcome.reason.message : String(outcome.reason);
-      warnings.push(`${t.label}(${t.symbol}) 주가를 불러오지 못했습니다: ${msg}`);
+      // optional 종목(현재 무료 소스로 못 받는 OTC ADR 등)은 화면 경고를 띄우지
+      // 않는다. 상시 경고가 붙은 페이지를 남에게 공유하게 되기 때문이다.
+      // 사유는 data/last-build.json 에 그대로 남는다.
+      if (!t.optional) warnings.push(`${t.label}(${t.symbol}) 주가를 불러오지 못했습니다: ${msg}`);
+      else optionalFailures.push(`${t.label}(${t.symbol}): ${msg}`);
       console.warn(`  ${t.label} (${t.symbol}): 실패 — ${msg}`);
     }
   });
 
-  return { series, warnings };
+  return { series, warnings, optionalFailures };
 }
 
 // -------------------------------------------------------------- 현물가
@@ -444,6 +449,7 @@ async function main() {
         memory: memory.series.map(summarize),
         contract: contract.series.map(summarize),
         warnings: [...stocks.warnings, ...memory.warnings, ...contract.warnings],
+        optionalFailures: stocks.optionalFailures ?? [],
       },
       null,
       2,
@@ -453,12 +459,14 @@ async function main() {
 
   // 한 종목이라도 실패하는 건 화면에 경고로 뜨면 되지만, 한 축이 통째로 비면
   // 겹쳐 볼 게 없다. 반쪽짜리를 새로 배포하느니 직전 배포를 그대로 두는 게 낫다.
-  if (stocks.series.length === 0) {
+  // 로컬에서는 주가 소스가 막혀 있을 수 있다. 화면만 확인할 때 쓰는 우회.
+  const skipGuard = process.env.SKIP_DATA_GUARD === "1";
+  if (stocks.series.length === 0 && !skipGuard) {
     console.error("주가를 한 종목도 받지 못했습니다. 배포를 중단합니다.");
     process.exit(1);
   }
-  if (memory.series.length === 0) {
-    console.error("현물가 계열이 하나도 없습니다. 배포를 중단합니다.");
+  if (memory.series.length === 0 && contract.series.length === 0 && !skipGuard) {
+    console.error("현물가·고정거래가가 모두 비었습니다. 배포를 중단합니다.");
     process.exit(1);
   }
 

@@ -73,7 +73,18 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/memory-spot.csv data/last-build.json
           git commit -m "chore(data): update spot prices and build log ($(date -u +%Y-%m-%d))"
-          git push
+
+          # 크론과 push 실행이 겹치거나, workflow_dispatch 가 지나간 SHA 를 체크아웃해
+          # 브랜치가 앞서 있을 수 있다. 그럴 때는 리베이스 후 다시 민다.
+          # -X theirs 는 리베이스에서 '지금 얹는 쪽', 즉 방금 생성한 데이터를 택한다.
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              exit 0
+            fi
+            echo "push 거부됨 (시도 $attempt) — 리베이스 후 재시도"
+            git pull --rebase -X theirs origin "${GITHUB_REF_NAME}" || exit 1
+          done
+          exit 1
 
       - name: Build site
         env:

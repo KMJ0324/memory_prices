@@ -137,9 +137,22 @@ async function naverForeignOnce(ticker, symbol) {
  * 네이버 다음 순번이다. 응답은 Date,Open,High,Low,Close,Volume 형식이다.
  */
 async function fromStooq(ticker) {
-  if (!ticker.stooq) throw new Error("stooq 심볼이 없습니다");
+  const candidates = [ticker.stooq].flat().filter(Boolean);
+  if (candidates.length === 0) throw new Error("stooq 심볼이 없습니다");
 
-  const res = await fetch(`https://stooq.com/q/d/l/?s=${encodeURIComponent(ticker.stooq)}&i=d`, {
+  const errors = [];
+  for (const symbol of candidates) {
+    try {
+      return await stooqOnce(ticker, symbol);
+    } catch (err) {
+      errors.push(`${symbol}: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+  throw new Error(errors.join("; "));
+}
+
+async function stooqOnce(ticker, symbol) {
+  const res = await fetch(`https://stooq.com/q/d/l/?s=${encodeURIComponent(symbol)}&i=d`, {
     headers: { "User-Agent": UA },
   });
   if (!res.ok) throw new Error(`Stooq ${res.status} ${res.statusText}`);
@@ -162,7 +175,7 @@ async function fromStooq(ticker) {
     points.push({ date, value: Math.round(value * 100) / 100 });
   }
   if (points.length === 0) throw new Error("기간 내 유효한 종가가 없습니다");
-  return { points, currency: ticker.currency, via: "Stooq" };
+  return { points, currency: ticker.currency, via: `Stooq ${symbol}` };
 }
 
 /**
@@ -171,25 +184,28 @@ async function fromStooq(ticker) {
  */
 async function fromYahoo(ticker) {
   const hosts = ["query1.finance.yahoo.com", "query2.finance.yahoo.com"];
+  const symbols = [ticker.symbol].flat().filter(Boolean);
   const errors = [];
 
-  for (let attempt = 0; attempt < hosts.length * 2; attempt++) {
-    const host = hosts[attempt % hosts.length];
-    try {
-      return await yahooOnce(ticker, host);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      errors.push(`${host}: ${msg}`);
-      if (!/429/.test(msg)) break;
-      await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+  for (const symbol of symbols) {
+    for (let attempt = 0; attempt < hosts.length * 2; attempt++) {
+      const host = hosts[attempt % hosts.length];
+      try {
+        return await yahooOnce(ticker, host, symbol);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        errors.push(`${symbol}@${host}: ${msg}`);
+        if (!/429/.test(msg)) break;
+        await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+      }
     }
   }
   throw new Error(errors.join("; "));
 }
 
-async function yahooOnce(ticker, host) {
+async function yahooOnce(ticker, host, symbol) {
   const url =
-    `https://${host}/v8/finance/chart/${encodeURIComponent(ticker.symbol)}` +
+    `https://${host}/v8/finance/chart/${encodeURIComponent(symbol)}` +
     `?range=${YEARS}y&interval=1d`;
 
   const res = await fetch(url, { headers: { "User-Agent": UA } });
@@ -214,7 +230,7 @@ async function yahooOnce(ticker, host) {
     });
   }
   if (points.length === 0) throw new Error("유효한 종가가 없습니다");
-  return { points, currency: result.meta?.currency ?? ticker.currency, via: `Yahoo Finance (${host})` };
+  return { points, currency: result.meta?.currency ?? ticker.currency, via: `Yahoo Finance ${symbol}` };
 }
 
 async function fetchTicker(ticker) {
@@ -234,7 +250,7 @@ async function fetchTicker(ticker) {
         kind: "stock",
         currency,
         unit: currency === "KRW" ? "원" : "달러",
-        source: `${via} (${ticker.symbol})`,
+        source: `${via} (${[ticker.symbol].flat()[0]})`,
         points,
       };
     } catch (err) {
@@ -265,7 +281,7 @@ async function buildStocks(tickers) {
       // 않는다. 상시 경고가 붙은 페이지를 남에게 공유하게 되기 때문이다.
       // 사유는 data/last-build.json 에 그대로 남는다.
       if (!t.optional) warnings.push(`${t.label}(${t.symbol}) 주가를 불러오지 못했습니다: ${msg}`);
-      else optionalFailures.push(`${t.label}(${t.symbol}): ${msg}`);
+      else optionalFailures.push(`${t.label}(${[t.symbol].flat()[0]}): ${msg}`);
       console.warn(`  ${t.label} (${t.symbol}): 실패 — ${msg}`);
     }
   });

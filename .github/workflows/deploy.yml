@@ -14,6 +14,12 @@ on:
         type: boolean
         default: false
 
+# 크론은 기본 브랜치에서만 발화한다. 기본 브랜치가 아직 main 이 아니어도
+# 데이터가 엉뚱한 브랜치에 쌓이지 않도록, 어느 ref 에서 돌든 항상 main 을
+# 체크아웃해 main 에 커밋하고 main 을 배포한다.
+env:
+  DATA_BRANCH: main
+
 permissions:
   contents: write
   pages: write
@@ -28,6 +34,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.DATA_BRANCH }}
 
       - uses: actions/setup-node@v4
         with:
@@ -91,11 +99,11 @@ jobs:
           # 브랜치가 앞서 있을 수 있다. 그럴 때는 리베이스 후 다시 민다.
           # -X theirs 는 리베이스에서 '지금 얹는 쪽', 즉 방금 생성한 데이터를 택한다.
           for attempt in 1 2 3; do
-            if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+            if git push origin "HEAD:${DATA_BRANCH}"; then
               exit 0
             fi
             echo "push 거부됨 (시도 $attempt) — 리베이스 후 재시도"
-            git pull --rebase -X theirs origin "${GITHUB_REF_NAME}" || exit 1
+            git pull --rebase -X theirs origin "${DATA_BRANCH}" || exit 1
           done
           exit 1
 

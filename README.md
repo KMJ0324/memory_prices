@@ -161,8 +161,12 @@ node scripts/fetch-dramexchange.mjs --drop-placeholders  # 시드 샘플 행 일
 3. `next build` (정적 export) → GitHub Pages 배포
 
 평일 09:10 UTC(18:10 KST)에 자동 실행되고, `main` 에 push 할 때와 Actions 탭의
-**Run workflow** 로도 돕니다. 예약 실행은 기본 브랜치에서만 동작하므로 기본
-브랜치는 `main` 이어야 합니다. 공개 리포지토리라 배포된 링크는 로그인 없이
+**Run workflow** 로도 돕니다.
+
+예약 실행(크론)은 GitHub 규칙상 **기본 브랜치에서만 발화**합니다. 다만 어느
+ref 에서 돌든 워크플로는 `DATA_BRANCH`(= `main`)를 체크아웃해 거기에 커밋하고
+거기서 배포하므로, 기본 브랜치가 무엇이든 데이터는 `main` 한 곳에만 쌓입니다.
+기본 브랜치를 `main` 으로 두는 편이 깔끔하지만 필수는 아닙니다. 공개 리포지토리라 배포된 링크는 로그인 없이
 누구나 열 수 있습니다.
 
 ### 최초 1회 설정

@@ -23,7 +23,7 @@ const RANGES = [
 ];
 
 export default function Home() {
-  const [range, setRange] = useState("1y");
+  const [range, setRange] = useState("3m");
   const [mode, setMode] = useState<Mode>("normalized");
   const [all, setAll] = useState<Series[]>([]);
   const [hidden, setHidden] = useState<Set<string>>(new Set());

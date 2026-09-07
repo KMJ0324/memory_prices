@@ -13,6 +13,8 @@ const Chart = dynamic(() => import("@/components/Chart"), {
 });
 
 const RANGES = [
+  { id: "3m", label: "3개월" },
+  { id: "6m", label: "6개월" },
   { id: "1y", label: "1년" },
   { id: "2y", label: "2년" },
   { id: "3y", label: "3년" },
@@ -21,7 +23,7 @@ const RANGES = [
 ];
 
 export default function Home() {
-  const [range, setRange] = useState("5y");
+  const [range, setRange] = useState("1y");
   const [mode, setMode] = useState<Mode>("normalized");
   const [all, setAll] = useState<Series[]>([]);
   const [hidden, setHidden] = useState<Set<string>>(new Set());

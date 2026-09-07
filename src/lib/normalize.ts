@@ -2,13 +2,20 @@ import type { Point, Series } from "./types";
 
 export type Mode = "normalized" | "actual";
 
+const MONTHS_BACK: Record<string, number> = {
+  "3m": 3,
+  "6m": 6,
+  "1y": 12,
+  "2y": 24,
+  "3y": 36,
+  "5y": 60,
+};
+
 export function cutoffFor(range: string): string | null {
-  const now = new Date();
-  const years: Record<string, number> = { "1y": 1, "2y": 2, "3y": 3, "5y": 5 };
-  const n = years[range];
+  const n = MONTHS_BACK[range];
   if (!n) return null;
-  const d = new Date(now);
-  d.setFullYear(d.getFullYear() - n);
+  const d = new Date();
+  d.setMonth(d.getMonth() - n);
   return d.toISOString().slice(0, 10);
 }
 

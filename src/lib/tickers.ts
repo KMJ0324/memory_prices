@@ -3,15 +3,19 @@ import type { Series } from "./types";
 
 export interface TickerDef {
   id: string;
-  /** Yahoo Finance symbol. */
-  symbol: string;
+  /** 소스별 심볼. 후보를 순차 시도할 수 있게 배열도 받는다. */
+  symbol: string | string[];
+  stooq?: string | string[];
+  naver?: string | string[];
   label: string;
   currency: string;
   color: string;
+  /** 못 받아와도 화면 경고를 띄우지 않는 종목. */
+  optional?: boolean;
 }
 
 /** Shared with `scripts/build-data.mjs` so the app and the cron job can't drift. */
-export const TICKERS: TickerDef[] = tickers;
+export const TICKERS: TickerDef[] = tickers as TickerDef[];
 
 export const MEMORY_COLORS: Record<string, string> = {
   DRAM_DDR5_16Gb_4800: "#f28f3b",

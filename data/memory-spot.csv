@@ -1,4 +1,6 @@
 date,series,price,unit,source
+2026-09-07,DRAM_DDR4_16Gb_3200,93.250,USD,dramexchange
+2026-09-07,DRAM_DDR4_16Gb_eTT,11.975,USD,dramexchange
 2026-09-07,DRAM_DDR4_8Gb_3200,45.357,USD,dramexchange
 2026-09-07,DRAM_DDR4_8Gb_eTT,4.950,USD,dramexchange
 2026-09-07,DRAM_DDR5_16Gb_4800,54.133,USD,dramexchange

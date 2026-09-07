@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-07T07:25:59.690Z",
+  "generatedAt": "2026-09-07T07:30:15.231Z",
   "stocks": [
     {
       "id": "samsung",
@@ -68,6 +68,32 @@
     }
   ],
   "memory": [
+    {
+      "id": "DRAM_DDR4_16Gb_3200",
+      "source": "dramexchange",
+      "count": 1,
+      "first": {
+        "date": "2026-09-07",
+        "value": 93.25
+      },
+      "last": {
+        "date": "2026-09-07",
+        "value": 93.25
+      }
+    },
+    {
+      "id": "DRAM_DDR4_16Gb_eTT",
+      "source": "dramexchange",
+      "count": 1,
+      "first": {
+        "date": "2026-09-07",
+        "value": 11.975
+      },
+      "last": {
+        "date": "2026-09-07",
+        "value": 11.975
+      }
+    },
     {
       "id": "DRAM_DDR4_8Gb_3200",
       "source": "dramexchange",

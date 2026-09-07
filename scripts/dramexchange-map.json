@@ -1,0 +1,10 @@
+{
+  "_comment": "DRAMeXchange 현물가 표의 품목명 → CSV series id 매핑. 사이트 표기가 바뀌면 match 정규식만 고치면 됩니다.",
+  "source": "https://www.dramexchange.com/",
+  "items": [
+    { "id": "DRAM_DDR4_8Gb",  "match": "DDR4.*\\b8Gb\\b",              "unit": "USD/chip" },
+    { "id": "DRAM_DDR5_16Gb", "match": "DDR5.*\\b16Gb\\b",             "unit": "USD/chip" },
+    { "id": "NAND_512Gb_TLC", "match": "(512Gb.*TLC|TLC.*512Gb)",      "unit": "USD/wafer" },
+    { "id": "NAND_128Gb_MLC", "match": "(128Gb.*MLC|MLC.*128Gb)",      "unit": "USD/wafer" }
+  ]
+}

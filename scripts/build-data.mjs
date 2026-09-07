@@ -32,15 +32,91 @@ const YEARS = Number(process.env.STOCK_YEARS ?? 6);
 const UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36";
 
-function cutoffDate() {
+function cutoff() {
   const d = new Date();
   d.setFullYear(d.getFullYear() - YEARS);
-  return d.toISOString().slice(0, 10);
+  return d;
+}
+
+function cutoffDate() {
+  return cutoff().toISOString().slice(0, 10);
+}
+
+function ymd(date) {
+  return date.toISOString().slice(0, 10).replace(/-/g, "");
 }
 
 /**
- * Stooq: 키 없는 무료 CSV. Yahoo 가 데이터센터 IP를 자주 막기 때문에 이쪽을
- * 먼저 시도한다. 응답은 Date,Open,High,Low,Close,Volume 형식이다.
+ * 네이버 금융(국내). GitHub Actions 러너 IP에서도 열려 있어 1순위로 쓴다.
+ * 응답은 작은따옴표를 쓰는 JS 배열 리터럴이라 그대로는 JSON.parse 가 안 된다.
+ *   [['날짜','시가','고가','저가','종가','거래량','외국인소진율'],
+ *    ["20260904", 55700, 56400, 55600, 56100, 12993228, 55.77], ...]
+ */
+async function fromNaverDomestic(ticker) {
+  const code = ticker.symbol.split(".")[0];
+  const url =
+    `https://api.finance.naver.com/siseJson.naver?symbol=${code}&requestType=1` +
+    `&startTime=${ymd(cutoff())}&endTime=${ymd(new Date())}&timeframe=day`;
+
+  const res = await fetch(url, { headers: { "User-Agent": UA, Referer: "https://finance.naver.com/" } });
+  if (!res.ok) throw new Error(`네이버 ${res.status} ${res.statusText}`);
+
+  const text = (await res.text()).trim();
+  let rows;
+  try {
+    rows = JSON.parse(text.replace(/'/g, '"'));
+  } catch {
+    throw new Error(`예상 밖 응답: ${text.slice(0, 60)}`);
+  }
+  if (!Array.isArray(rows) || rows.length < 2) throw new Error("데이터 없음");
+
+  const header = rows[0].map(String);
+  const iDate = header.findIndex((h) => h.includes("날짜"));
+  const iClose = header.findIndex((h) => h.includes("종가"));
+  if (iDate < 0 || iClose < 0) throw new Error(`헤더를 알 수 없습니다: ${header.join(",")}`);
+
+  const points = [];
+  for (const row of rows.slice(1)) {
+    const raw = String(row[iDate] ?? "");
+    const value = Number(row[iClose]);
+    if (!/^\d{8}$/.test(raw) || !Number.isFinite(value) || value <= 0) continue;
+    points.push({ date: `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6)}`, value });
+  }
+  if (points.length === 0) throw new Error("유효한 종가가 없습니다");
+  return { points, currency: "KRW", via: "네이버 금융" };
+}
+
+/** 네이버 금융(해외). 마이크론 같은 미국 상장 종목용. */
+async function fromNaverForeign(ticker) {
+  if (!ticker.naver) throw new Error("네이버 해외 심볼이 없습니다");
+
+  const url =
+    `https://api.stock.naver.com/chart/foreign/item/${encodeURIComponent(ticker.naver)}/day` +
+    `?startDateTime=${ymd(cutoff())}0000&endDateTime=${ymd(new Date())}0000`;
+
+  const res = await fetch(url, { headers: { "User-Agent": UA, Referer: "https://m.stock.naver.com/" } });
+  if (!res.ok) throw new Error(`네이버 해외 ${res.status} ${res.statusText}`);
+
+  const json = await res.json();
+  const rows = Array.isArray(json) ? json : (json?.priceInfos ?? json?.result ?? []);
+  if (!Array.isArray(rows) || rows.length === 0) {
+    throw new Error(`예상 밖 응답: ${JSON.stringify(json).slice(0, 80)}`);
+  }
+
+  const points = [];
+  for (const row of rows) {
+    const raw = String(row.localDate ?? row.localDateTime ?? row.date ?? "").slice(0, 8);
+    const value = Number(row.closePrice ?? row.close ?? row.tradePrice);
+    if (!/^\d{8}$/.test(raw) || !Number.isFinite(value) || value <= 0) continue;
+    points.push({ date: `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6)}`, value });
+  }
+  if (points.length === 0) throw new Error("유효한 종가가 없습니다");
+  return { points, currency: "USD", via: "네이버 금융" };
+}
+
+/**
+ * Stooq: 키 없는 무료 CSV. 데이터센터 IP에서는 봇 차단 HTML을 주는 일이 있어
+ * 네이버 다음 순번이다. 응답은 Date,Open,High,Low,Close,Volume 형식이다.
  */
 async function fromStooq(ticker) {
   if (!ticker.stooq) throw new Error("stooq 심볼이 없습니다");
@@ -103,7 +179,13 @@ async function fromYahoo(ticker) {
 
 async function fetchTicker(ticker) {
   const errors = [];
-  for (const source of [fromStooq, fromYahoo]) {
+  // 순서가 곧 신뢰도 순. 앞의 소스가 러너 IP에서 막히면 다음으로 넘어간다.
+  const chain =
+    ticker.currency === "KRW"
+      ? [fromNaverDomestic, fromStooq, fromYahoo]
+      : [fromNaverForeign, fromStooq, fromYahoo];
+
+  for (const source of chain) {
     try {
       const { points, currency, via } = await source(ticker);
       return {
@@ -112,7 +194,7 @@ async function fetchTicker(ticker) {
         kind: "stock",
         currency,
         unit: currency === "KRW" ? "원" : "달러",
-        source: `${via} (${via === "Stooq" ? ticker.stooq : ticker.symbol})`,
+        source: `${via} (${ticker.symbol})`,
         points,
       };
     } catch (err) {

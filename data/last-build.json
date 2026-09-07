@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-07T06:55:51.150Z",
+  "generatedAt": "2026-09-07T06:59:16.027Z",
   "stocks": [
     {
       "id": "samsung",
@@ -134,5 +134,7 @@
       }
     }
   ],
-  "warnings": []
+  "warnings": [
+    "SK하이닉스 ADR(HXSCL) 주가를 불러오지 못했습니다: 예상 밖 응답: [] / 예상 밖 응답: <!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name= / Yahoo Finance 429 Too Many Requests"
+  ]
 }

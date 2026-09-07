@@ -165,9 +165,31 @@ async function fromStooq(ticker) {
   return { points, currency: ticker.currency, via: "Stooq" };
 }
 
+/**
+ * Yahoo 는 러너 IP에 429 를 자주 낸다. 호스트를 바꿔가며 몇 번 시도한다 —
+ * 네이버가 커버하지 않는 OTC ADR 같은 종목에는 이쪽이 유일한 통로다.
+ */
 async function fromYahoo(ticker) {
+  const hosts = ["query1.finance.yahoo.com", "query2.finance.yahoo.com"];
+  const errors = [];
+
+  for (let attempt = 0; attempt < hosts.length * 2; attempt++) {
+    const host = hosts[attempt % hosts.length];
+    try {
+      return await yahooOnce(ticker, host);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      errors.push(`${host}: ${msg}`);
+      if (!/429/.test(msg)) break;
+      await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+    }
+  }
+  throw new Error(errors.join("; "));
+}
+
+async function yahooOnce(ticker, host) {
   const url =
-    `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker.symbol)}` +
+    `https://${host}/v8/finance/chart/${encodeURIComponent(ticker.symbol)}` +
     `?range=${YEARS}y&interval=1d`;
 
   const res = await fetch(url, { headers: { "User-Agent": UA } });
@@ -192,7 +214,7 @@ async function fromYahoo(ticker) {
     });
   }
   if (points.length === 0) throw new Error("유효한 종가가 없습니다");
-  return { points, currency: result.meta?.currency ?? ticker.currency, via: "Yahoo Finance" };
+  return { points, currency: result.meta?.currency ?? ticker.currency, via: `Yahoo Finance (${host})` };
 }
 
 async function fetchTicker(ticker) {

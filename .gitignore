@@ -7,3 +7,5 @@ build/
 next-env.d.ts
 .env*.local
 .vercel
+public/data/
+out/

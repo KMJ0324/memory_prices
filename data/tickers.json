@@ -1,0 +1,6 @@
+[
+  { "id": "samsung",      "symbol": "005930.KS", "label": "삼성전자",   "currency": "KRW", "color": "#4c8dff" },
+  { "id": "samsung-pref", "symbol": "005935.KS", "label": "삼성전자우", "currency": "KRW", "color": "#8fb8ff" },
+  { "id": "hynix",        "symbol": "000660.KS", "label": "SK하이닉스", "currency": "KRW", "color": "#e0426b" },
+  { "id": "micron",       "symbol": "MU",        "label": "마이크론",   "currency": "USD", "color": "#4cd1a1" }
+]

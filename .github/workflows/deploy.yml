@@ -1,0 +1,95 @@
+name: Update data and deploy
+
+on:
+  push:
+    branches: [claude/dram-nand-stock-chart-ei1l18]
+  schedule:
+    # 09:10 UTC = 18:10 KST. 한국 증시 마감(06:30 UTC) 이후이고,
+    # DRAMeXchange 가 당일 현물가를 올린 뒤이며, 미국 종가는 전일치가 들어온다.
+    - cron: "10 9 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Fetch DRAMeXchange spot prices
+        id: spot
+        # 파서가 깨져도 사이트를 내리지는 않는다. 기존 CSV로 그대로 배포하고,
+        # 실패 사실은 아래 스냅샷 아티팩트와 요약으로 남긴다.
+        continue-on-error: true
+        run: node scripts/fetch-dramexchange.mjs --dump /tmp/dramexchange.html
+
+      - name: Upload page snapshot when parsing fails
+        if: steps.spot.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dramexchange-html
+          path: /tmp/dramexchange.html
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Flag spot fetch failure in the run summary
+        if: steps.spot.outcome == 'failure'
+        run: |
+          echo "### DRAMeXchange 수집 실패" >> "$GITHUB_STEP_SUMMARY"
+          echo "현물가는 기존 CSV 값으로 배포했습니다. \`scripts/dramexchange-map.json\` 의 match 를 확인하세요." >> "$GITHUB_STEP_SUMMARY"
+          echo "받아온 HTML은 이 실행의 \`dramexchange-html\` 아티팩트에 있습니다." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit updated CSV
+        run: |
+          if git diff --quiet -- data/memory-spot.csv; then
+            echo "현물가 변경 없음"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/memory-spot.csv
+          git commit -m "chore(data): update memory spot prices ($(date -u +%Y-%m-%d))"
+          git push
+
+      - name: Build static data
+        env:
+          MEMORY_API_URL: ${{ vars.MEMORY_API_URL }}
+          MEMORY_API_KEY: ${{ secrets.MEMORY_API_KEY }}
+        run: node scripts/build-data.mjs
+
+      - name: Build site
+        env:
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+        run: |
+          npm run build
+          touch out/.nojekyll
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

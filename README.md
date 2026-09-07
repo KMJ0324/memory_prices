@@ -22,35 +22,40 @@ npm run dev     # http://localhost:3000
 
 ## 데이터
 
-### 주가 — `/api/stocks`
+사이트는 **완전한 정적 페이지**입니다. 매일 GitHub Actions가 데이터를 받아
+`public/data/*.json` 으로 굽고 사이트를 통째로 재배포합니다. 브라우저는 같은
+오리진의 JSON만 읽으므로 CORS 문제가 없고, 서버를 돌릴 필요도 없습니다.
 
-Yahoo Finance 차트 API의 **수정종가**(adjusted close)를 서버에서 받아옵니다. 서버 경유라
-브라우저 CORS 제약이 없고, 15분 캐시(ISR)가 걸려 있습니다. 종목 추가·변경은
-`src/lib/tickers.ts` 의 `TICKERS` 배열만 고치면 됩니다.
+`scripts/build-data.mjs` 가 두 파일을 만듭니다.
 
-일부 종목을 못 받아와도 나머지는 그대로 그려지고, 실패한 종목은 화면 상단 경고로 표시됩니다.
+### `public/data/stocks.json` — 주가
 
-### 현물가 — `/api/memory`
+Yahoo Finance 차트 API의 **수정종가**(adjusted close) 10년치. 종목 정의는
+`data/tickers.json` 한 곳에 있고, 앱과 수집 스크립트가 같이 읽습니다. 종목을
+추가하려면 여기에 한 줄 넣으면 됩니다.
 
-DRAM/NAND 현물가는 무료 공개 API가 없어 두 가지 경로를 지원합니다.
+일부 종목을 못 받아와도 나머지는 그대로 그려지고, 실패한 종목은 화면 상단
+경고로 표시됩니다.
 
-1. **`data/memory-spot.csv`** (기본). 스키마는 다음과 같습니다.
+### `public/data/memory.json` — 현물가
 
-   ```csv
-   date,series,price,unit,source
-   2026-09-05,DRAM_DDR4_8Gb,6.99,USD/chip,dramexchange
-   ```
+기본값은 `data/memory-spot.csv` 이고, 스키마는 다음과 같습니다.
 
-   - `date`: `YYYY-MM-DD`. 일별·월별 어느 쪽이든 됩니다.
-   - `series`: `DRAM_DDR4_8Gb` / `DRAM_DDR5_16Gb` / `NAND_512Gb_TLC` / `NAND_128Gb_MLC`
-     (라벨은 `src/lib/tickers.ts` 의 `MEMORY_LABELS`)
-   - `source`: 출처. `PLACEHOLDER` 인 행이 하나라도 있으면 그 계열 전체가
-     경고 배너 + 점선으로 표시됩니다.
+```csv
+date,series,price,unit,source
+2026-09-05,DRAM_DDR4_8Gb,6.99,USD/chip,dramexchange
+```
 
-2. **외부 엔드포인트**. `MEMORY_API_URL` 환경변수를 설정하면 CSV 대신 그 URL을
-   호출합니다(선택적으로 `MEMORY_API_KEY` 를 Bearer 토큰으로 붙임). 응답은
-   `{ "series": Series[] }` 형태여야 하며, 타입은 `src/lib/types.ts` 참고.
-   호출이 실패하면 자동으로 CSV로 폴백하고 경고를 띄웁니다.
+- `date`: `YYYY-MM-DD`. 일별·월별 어느 쪽이든 됩니다.
+- `series`: `DRAM_DDR4_8Gb` / `DRAM_DDR5_16Gb` / `NAND_512Gb_TLC` / `NAND_128Gb_MLC`
+  (라벨은 `src/lib/tickers.ts` 의 `MEMORY_LABELS`)
+- `source`: 출처. `PLACEHOLDER` 인 행이 하나라도 있으면 그 계열 전체가
+  경고 배너 + 점선으로 표시됩니다.
+
+유료·사내 피드를 쓴다면 리포지토리 변수 `MEMORY_API_URL` (필요시 시크릿
+`MEMORY_API_KEY`) 을 설정하세요. 그 URL을 CSV 대신 호출하고, 실패하면 자동으로
+CSV로 폴백합니다. 응답은 `{ "series": Series[] }` 형태여야 하며 타입은
+`src/lib/types.ts` 참고.
 
 ## 현물가 자동 갱신 (DRAMeXchange)
 
@@ -69,7 +74,7 @@ node scripts/fetch-dramexchange.mjs --drop-placeholders  # 시드 샘플 행 일
 사이트 표기가 바뀌어 하나도 매칭되지 않으면 스크립트가 0이 아닌 코드로 종료하면서
 페이지에서 찾은 품목명 목록을 출력하므로, 그걸 보고 `match` 만 고치면 됩니다.
 
-`.github/workflows/update-spot-prices.yml` 이 평일 01:10 UTC(10:10 KST)에 이 스크립트를
+`.github/workflows/deploy.yml` 이 평일 01:10 UTC(10:10 KST)에 이 스크립트를
 돌리고, 변경이 있으면 CSV를 커밋·푸시합니다. 실패하면 받아온 HTML을 아티팩트로 올려
 셀렉터를 고칠 수 있게 합니다. 수동 실행은 Actions 탭의 **Run workflow**.
 
@@ -86,11 +91,27 @@ node scripts/fetch-dramexchange.mjs --drop-placeholders  # 시드 샘플 행 일
 있고, UI에서 경고 배너와 점선으로 구분됩니다. 실제 데이터가 쌓이면
 `--drop-placeholders` 로 지우세요.
 
-## 배포
+## 배포 (GitHub Pages)
 
-Vercel에 그대로 올라갑니다. 저장소를 연결하고 기본 설정으로 배포하면 되며,
-외부 현물가 피드를 쓸 때만 `MEMORY_API_URL` (필요시 `MEMORY_API_KEY`) 을
-환경변수로 넣으면 됩니다.
+`.github/workflows/deploy.yml` 하나가 데이터 갱신과 배포를 다 합니다.
+
+1. DRAMeXchange 현물가 수집 → 변경이 있으면 CSV 커밋·푸시
+2. `scripts/build-data.mjs` 로 주가·현물가 JSON 생성
+3. `next build` (정적 export) → GitHub Pages 배포
+
+평일 09:10 UTC(18:10 KST)에 자동 실행되고, push 할 때와 Actions 탭의
+**Run workflow** 로도 돕니다. 공개 리포지토리라 배포된 링크는 로그인 없이
+누구나 열 수 있습니다.
+
+### 최초 1회 설정
+
+리포지토리 **Settings → Pages → Build and deployment → Source** 를
+**GitHub Actions** 로 바꿔주세요. 이 한 번만 하면 이후는 전부 자동입니다.
+(`Settings → Actions → General → Workflow permissions` 가 *Read and write*
+여야 CSV 커밋이 됩니다.)
+
+다른 곳에 올리고 싶다면 Vercel도 그대로 됩니다. 저장소를 연결해 기본 설정으로
+배포하면 되고, 이때는 `NEXT_PUBLIC_BASE_PATH` 를 비워두면 됩니다.
 
 ## 구조
 
@@ -98,9 +119,9 @@ Vercel에 그대로 올라갑니다. 저장소를 연결하고 기본 설정으�
 data/memory-spot.csv          현물가 원본 데이터
 scripts/fetch-dramexchange.mjs  DRAMeXchange 수집 스크립트
 scripts/dramexchange-map.json   품목명 → series 매핑
-src/app/api/stocks/route.ts   Yahoo Finance 프록시
-src/app/api/memory/route.ts   현물가 (CSV 또는 외부 엔드포인트)
+data/tickers.json             종목 정의 (앱·스크립트 공용)
+scripts/build-data.mjs        public/data/*.json 생성 (주가 + 현물가)
 src/components/Chart.tsx      ECharts 라인 차트
 src/lib/normalize.ts          기간 자르기 · 기준일=100 환산
-src/lib/tickers.ts            종목 · 색상 · 라벨 정의
+src/lib/tickers.ts            색상 · 라벨 정의
 ```

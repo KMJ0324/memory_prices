@@ -1,20 +1,17 @@
+import tickers from "../../data/tickers.json";
 import type { Series } from "./types";
 
 export interface TickerDef {
+  id: string;
   /** Yahoo Finance symbol. */
   symbol: string;
-  id: string;
   label: string;
   currency: string;
   color: string;
 }
 
-export const TICKERS: TickerDef[] = [
-  { symbol: "005930.KS", id: "samsung", label: "삼성전자", currency: "KRW", color: "#4c8dff" },
-  { symbol: "005935.KS", id: "samsung-pref", label: "삼성전자우", currency: "KRW", color: "#8fb8ff" },
-  { symbol: "000660.KS", id: "hynix", label: "SK하이닉스", currency: "KRW", color: "#e0426b" },
-  { symbol: "MU", id: "micron", label: "마이크론", currency: "USD", color: "#4cd1a1" },
-];
+/** Shared with `scripts/build-data.mjs` so the app and the cron job can't drift. */
+export const TICKERS: TickerDef[] = tickers;
 
 export const MEMORY_COLORS: Record<string, string> = {
   DRAM_DDR4_8Gb: "#f2c14e",

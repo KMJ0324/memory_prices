@@ -28,20 +28,26 @@ export default function Home() {
   const [warnings, setWarnings] = useState<string[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [error, setError] = useState<string | null>(null);
+  const [generatedAt, setGeneratedAt] = useState<string | undefined>();
 
   useEffect(() => {
     let cancelled = false;
-    setStatus("loading");
-    setError(null);
 
-    Promise.all([
-      fetch(`/api/stocks?range=${range}`).then((r) => r.json() as Promise<SeriesResponse>),
-      fetch("/api/memory").then((r) => r.json() as Promise<SeriesResponse>),
-    ])
+    // Static JSON built daily by scripts/build-data.mjs, served from the same
+    // origin — no CORS, and the page keeps working with no backend.
+    const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+    const load = (name: string) =>
+      fetch(`${base}/data/${name}.json`).then((r) => {
+        if (!r.ok) throw new Error(`${name}.json ${r.status}`);
+        return r.json() as Promise<SeriesResponse & { generatedAt?: string }>;
+      });
+
+    Promise.all([load("stocks"), load("memory")])
       .then(([stocks, memory]) => {
         if (cancelled) return;
         setAll([...memory.series, ...stocks.series]);
         setWarnings([...memory.warnings, ...stocks.warnings]);
+        setGeneratedAt(stocks.generatedAt ?? memory.generatedAt);
         setStatus("ready");
       })
       .catch((err: unknown) => {
@@ -53,7 +59,7 @@ export default function Home() {
     return () => {
       cancelled = true;
     };
-  }, [range]);
+  }, []);
 
   const visible = useMemo(
     () => prepare(all.filter((s) => !hidden.has(s.id)), cutoffFor(range), mode),
@@ -154,6 +160,12 @@ export default function Home() {
 
       <footer className="footer">
         <p>
+          {generatedAt && (
+            <>
+              데이터 갱신: {new Date(generatedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })} (KST) · 매일 자동 갱신
+              <br />
+            </>
+          )}
           주가: Yahoo Finance 수정종가 · 현물가:{" "}
           {memorySeries.some((s) => s.source === "PLACEHOLDER")
             ? "data/memory-spot.csv (샘플 값, 점선으로 표시)"

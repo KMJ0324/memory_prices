@@ -15,6 +15,8 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const OUT_DIR = path.join(ROOT, "public", "data");
 const CSV_PATH = path.join(ROOT, "data", "memory-spot.csv");
+const CONTRACT_CSV_PATH = path.join(ROOT, "data", "memory-contract.csv");
+const TRENDFORCE_MAP = path.join(ROOT, "scripts", "trendforce-map.json");
 
 const MEMORY_LABELS = {
   DRAM_DDR5_16Gb_4800: "DDR5 16Gb 4800/5600",
@@ -86,12 +88,28 @@ async function fromNaverDomestic(ticker) {
   return { points, currency: "KRW", via: "네이버 금융" };
 }
 
-/** 네이버 금융(해외). 마이크론 같은 미국 상장 종목용. */
+/**
+ * 네이버 금융(해외). 마이크론 같은 미국 상장 종목용.
+ * 접미사가 거래소마다 달라(.O 나스닥, .N 뉴욕 …) 심볼을 배열로 줄 수 있다.
+ */
 async function fromNaverForeign(ticker) {
-  if (!ticker.naver) throw new Error("네이버 해외 심볼이 없습니다");
+  const candidates = [ticker.naver].flat().filter(Boolean);
+  if (candidates.length === 0) throw new Error("네이버 해외 심볼이 없습니다");
 
+  const errors = [];
+  for (const symbol of candidates) {
+    try {
+      return await naverForeignOnce(ticker, symbol);
+    } catch (err) {
+      errors.push(`${symbol}: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+  throw new Error(errors.join("; "));
+}
+
+async function naverForeignOnce(ticker, symbol) {
   const url =
-    `https://api.stock.naver.com/chart/foreign/item/${encodeURIComponent(ticker.naver)}/day` +
+    `https://api.stock.naver.com/chart/foreign/item/${encodeURIComponent(symbol)}/day` +
     `?startDateTime=${ymd(cutoff())}0000&endDateTime=${ymd(new Date())}0000`;
 
   const res = await fetch(url, { headers: { "User-Agent": UA, Referer: "https://m.stock.naver.com/" } });
@@ -111,7 +129,7 @@ async function fromNaverForeign(ticker) {
     points.push({ date: `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6)}`, value });
   }
   if (points.length === 0) throw new Error("유효한 종가가 없습니다");
-  return { points, currency: "USD", via: "네이버 금융" };
+  return { points, currency: "USD", via: `네이버 금융 ${symbol}` };
 }
 
 /**
@@ -315,6 +333,65 @@ async function buildMemory() {
   return { series, warnings };
 }
 
+// ---------------------------------------------------- 고정거래가
+
+/** "CONTRACT_DRAM_DDR4_8Gb_1Gx8" → "고정 DDR4 8Gb 1Gx8" */
+function contractLabel(id, labels) {
+  if (labels[id]) return labels[id];
+  const body = id.replace(/^CONTRACT_(DRAM|NAND)_/, "").replace(/_/g, " ");
+  return `고정 ${body}`;
+}
+
+async function buildContract() {
+  const warnings = [];
+  let config = { featured: [], labels: {} };
+  try {
+    config = JSON.parse(await readFile(TRENDFORCE_MAP, "utf8"));
+  } catch {
+    /* 매핑이 없으면 라벨만 자동 생성된다 */
+  }
+
+  let rows;
+  try {
+    rows = parseCsv(await readFile(CONTRACT_CSV_PATH, "utf8"));
+  } catch (err) {
+    warnings.push(
+      `data/memory-contract.csv 를 읽지 못했습니다: ${err instanceof Error ? err.message : String(err)}`,
+    );
+    return { series: [], warnings };
+  }
+
+  const grouped = new Map();
+  for (const row of rows) {
+    const list = grouped.get(row.series);
+    if (list) list.push(row);
+    else grouped.set(row.series, [row]);
+  }
+
+  const featured = new Set(config.featured ?? []);
+  const series = [];
+  for (const [id, list] of grouped) {
+    list.sort((a, b) => a.date.localeCompare(b.date));
+    series.push({
+      id,
+      label: contractLabel(id, config.labels ?? {}),
+      kind: "contract",
+      currency: "USD",
+      unit: list[0]?.unit ?? "USD",
+      source: "TrendForce",
+      featured: featured.has(id),
+      points: list.map((r) => ({ date: r.date, value: r.price })),
+    });
+    console.log(`  ${id}: ${list.length}행 (${list[0].date} ~ ${list.at(-1).date})`);
+  }
+
+  // featured 가 하나도 없으면 아무것도 안 보이는 화면이 된다 — 앞의 몇 개를 켠다.
+  if (series.length > 0 && !series.some((s) => s.featured)) {
+    for (const s of series.slice(0, 3)) s.featured = true;
+  }
+  return { series, warnings };
+}
+
 // ---------------------------------------------------------------- main
 
 async function main() {
@@ -325,6 +402,8 @@ async function main() {
   const stocks = await buildStocks(tickers);
   console.log("현물가 수집:");
   const memory = await buildMemory();
+  console.log("고정거래가 수집:");
+  const contract = await buildContract();
 
   // 실패했을 때가 오히려 더 알아야 할 때이므로 가드보다 먼저 쓴다. 배포된 데이터가 무엇이었는지 리포에서 되짚을 수 있게 남기는 작은 감사 로그.
   const summarize = (s) => ({
@@ -341,7 +420,8 @@ async function main() {
         generatedAt,
         stocks: stocks.series.map(summarize),
         memory: memory.series.map(summarize),
-        warnings: [...stocks.warnings, ...memory.warnings],
+        contract: contract.series.map(summarize),
+        warnings: [...stocks.warnings, ...memory.warnings, ...contract.warnings],
       },
       null,
       2,
@@ -362,7 +442,14 @@ async function main() {
 
   await mkdir(OUT_DIR, { recursive: true });
   await writeFile(path.join(OUT_DIR, "stocks.json"), JSON.stringify({ ...stocks, generatedAt }));
-  await writeFile(path.join(OUT_DIR, "memory.json"), JSON.stringify({ ...memory, generatedAt }));
+  await writeFile(
+    path.join(OUT_DIR, "memory.json"),
+    JSON.stringify({
+      series: [...memory.series, ...contract.series],
+      warnings: [...memory.warnings, ...contract.warnings],
+      generatedAt,
+    }),
+  );
 
   console.log(`\npublic/data/*.json 생성 완료 (${generatedAt})`);
 

@@ -15,7 +15,7 @@ type AxisGroup = "chip" | "krw" | "usd";
 
 /** Which y-axis a series belongs to when actual prices (not indexes) are shown. */
 function axisGroup(s: Series): AxisGroup {
-  if (s.kind === "memory") return "chip";
+  if (s.kind === "memory" || s.kind === "contract") return "chip";
   return s.currency === "KRW" ? "krw" : "usd";
 }
 
@@ -28,9 +28,10 @@ const AXIS_LABEL: Record<AxisGroup, string> = {
 interface Props {
   series: Series[];
   mode: Mode;
+  contractOrder: string[];
 }
 
-export default function Chart({ series, mode }: Props) {
+export default function Chart({ series, mode, contractOrder }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const instance = useRef<echarts.ECharts | null>(null);
 
@@ -93,12 +94,12 @@ export default function Chart({ series, mode }: Props) {
       showSymbol: s.points.length < 60,
       symbolSize: 5,
       smooth: false,
-      // Unverified spot data is drawn dashed so it never reads as a real quote.
+      // 현물가는 점선, 고정거래가는 굵은 실선 — 성격이 다른 값을 한눈에 가른다.
       lineStyle: {
-        width: s.kind === "memory" ? 2.4 : 1.6,
-        type: s.source === "PLACEHOLDER" ? ("dashed" as const) : ("solid" as const),
+        width: s.kind === "contract" ? 2.6 : s.kind === "memory" ? 2 : 1.6,
+        type: s.kind === "memory" ? ("dashed" as const) : ("solid" as const),
       },
-      color: colorFor(s),
+      color: colorFor(s, contractOrder),
       data: s.points.map((p) => [p.date, p.value] as [string, number]),
     }));
 
@@ -163,7 +164,7 @@ export default function Chart({ series, mode }: Props) {
       },
       { replaceMerge: ["series", "yAxis"] },
     );
-  }, [series, mode]);
+  }, [series, mode, contractOrder]);
 
   return <div ref={ref} className="chart" role="img" aria-label="DRAM/NAND 현물가와 메모리 반도체 종목 주가 비교 차트" />;
 }

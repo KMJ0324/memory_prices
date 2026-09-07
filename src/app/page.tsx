@@ -45,7 +45,12 @@ export default function Home() {
     Promise.all([load("stocks"), load("memory")])
       .then(([stocks, memory]) => {
         if (cancelled) return;
-        setAll([...memory.series, ...stocks.series]);
+        const merged = [...memory.series, ...stocks.series];
+        setAll(merged);
+        // 고정거래가는 품목이 많아 전부 켜면 읽을 수 없다. featured 만 켠다.
+        setHidden(
+          new Set(merged.filter((s) => s.kind === "contract" && !s.featured).map((s) => s.id)),
+        );
         setWarnings([...memory.warnings, ...stocks.warnings]);
         setGeneratedAt(stocks.generatedAt ?? memory.generatedAt);
         setStatus("ready");
@@ -83,7 +88,9 @@ export default function Home() {
   }, [all]);
 
   const memorySeries = all.filter((s) => s.kind === "memory");
+  const contractSeries = all.filter((s) => s.kind === "contract");
   const stockSeries = all.filter((s) => s.kind === "stock");
+  const contractOrder = contractSeries.map((s) => s.id);
 
   // 같은 제공처를 종목 수만큼 늘어놓지 않는다: "네이버 금융 (005930.KS)" → "네이버 금융".
   const providers = (list: Series[]) => [
@@ -91,6 +98,7 @@ export default function Home() {
   ];
   const stockSource = providers(stockSeries).join(", ");
   const memorySource = providers(memorySeries).join(", ");
+  const contractSource = providers(contractSeries).join(", ");
 
   // 수집을 막 시작해 점이 몇 개뿐이면 그 사실을 화면에서 밝힌다.
   const memoryStart =
@@ -159,8 +167,27 @@ export default function Home() {
       </section>
 
       <section className="legend">
-        <SeriesToggles title="현물가" items={memorySeries} hidden={hidden} onToggle={toggle} />
-        <SeriesToggles title="주가" items={stockSeries} hidden={hidden} onToggle={toggle} />
+        <SeriesToggles
+          title="현물가"
+          items={memorySeries}
+          hidden={hidden}
+          onToggle={toggle}
+          contractOrder={contractOrder}
+        />
+        <SeriesToggles
+          title="고정거래가"
+          items={contractSeries}
+          hidden={hidden}
+          onToggle={toggle}
+          contractOrder={contractOrder}
+        />
+        <SeriesToggles
+          title="주가"
+          items={stockSeries}
+          hidden={hidden}
+          onToggle={toggle}
+          contractOrder={contractOrder}
+        />
       </section>
 
       {status === "ready" && visible.every((s) => s.points.length === 0) ? (
@@ -168,7 +195,7 @@ export default function Home() {
           이 기간에 표시할 데이터가 없습니다. 기간을 늘리거나 data/memory-spot.csv 를 최신 시세로 갱신하세요.
         </div>
       ) : (
-        <Chart series={visible} mode={mode} />
+          <Chart series={visible} mode={mode} contractOrder={contractOrder} />
       )}
 
       <footer className="footer">
@@ -182,6 +209,8 @@ export default function Home() {
           {stockSource && `주가: ${stockSource}`}
           {stockSource && memorySource && " · "}
           {memorySource && `현물가: ${memorySource}`}
+          {memorySource && contractSource && " · "}
+          {contractSource && `고정거래가: ${contractSource}`}
         </p>
         {memoryStart && (
           <p className="muted">
@@ -189,6 +218,11 @@ export default function Home() {
             시세만 공개하고 과거 시계열을 제공하지 않습니다.
           </p>
         )}
+        <p className="muted">
+          현물가(점선)는 매일 거래되는 시장가, 고정거래가(실선)는 공급사와 고객이
+          기간 단위로 정하는 계약가입니다. TrendForce 공개 표는 상세가 회원 전용이라
+          최신 확정치보다 한 주기 뒤처질 수 있습니다.
+        </p>
         <p className="muted">
           {mode === "actual"
             ? "실제 가격 모드에서는 통화·단위가 달라 축이 분리됩니다. 시계열 모양 비교에는 기준일=100 모드가 적합합니다."
@@ -204,11 +238,13 @@ function SeriesToggles({
   items,
   hidden,
   onToggle,
+  contractOrder,
 }: {
   title: string;
   items: Series[];
   hidden: Set<string>;
   onToggle: (id: string) => void;
+  contractOrder: string[];
 }) {
   if (items.length === 0) return null;
   return (
@@ -225,7 +261,7 @@ function SeriesToggles({
             aria-pressed={!off}
             title={s.source === "PLACEHOLDER" ? "검증되지 않은 샘플 데이터" : s.source}
           >
-            <i style={{ background: colorFor(s) }} />
+            <i style={{ background: colorFor(s, contractOrder) }} />
             {s.label}
             {s.source === "PLACEHOLDER" && <sup aria-label="샘플 데이터">*</sup>}
           </button>

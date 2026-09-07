@@ -45,6 +45,19 @@ jobs:
           node scripts/fetch-dramexchange.mjs --dump /tmp/dramexchange.html \
             ${{ inputs.dry_run && '--dry-run' || '' }}
 
+      - name: Fetch TrendForce contract prices
+        id: contract
+        # 고정거래가는 월 단위라 매일 돌려도 대부분 같은 값을 덮어쓴다.
+        # 파싱이 깨져도 사이트를 내리지 않는다.
+        continue-on-error: true
+        run: node scripts/fetch-trendforce.mjs ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Flag contract fetch failure in the run summary
+        if: steps.contract.outcome == 'failure'
+        run: |
+          echo "### TrendForce 고정거래가 수집 실패" >> "$GITHUB_STEP_SUMMARY"
+          echo "기존 CSV 값으로 배포했습니다. \`scripts/trendforce-map.json\` 의 pages 를 확인하세요." >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload page snapshot
         # 실패했을 때, 그리고 수동 점검 실행일 때 원본 HTML을 남긴다.
         if: steps.spot.outcome == 'failure' || inputs.dry_run
@@ -54,17 +67,6 @@ jobs:
           path: /tmp/dramexchange.html
           if-no-files-found: ignore
           retention-days: 7
-
-      - name: TEMP TrendForce 구조 덤프
-        if: inputs.dry_run
-        continue-on-error: true
-        run: |
-          node scripts/fetch-trendforce.mjs --dump-dir debug/
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f debug/
-          git diff --cached --quiet || git commit -m "chore(debug): TrendForce 페이지 스냅샷"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
 
       - name: Build static data
         env:
@@ -82,7 +84,7 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/memory-spot.csv data/last-build.json
+          git add data/memory-spot.csv data/memory-contract.csv data/last-build.json
           git commit -m "chore(data): update spot prices and build log ($(date -u +%Y-%m-%d))"
 
           # 크론과 push 실행이 겹치거나, workflow_dispatch 가 지나간 SHA 를 체크아웃해

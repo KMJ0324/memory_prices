@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-07T07:13:06.812Z",
+  "generatedAt": "2026-09-07T07:16:04.459Z",
   "stocks": [
     {
       "id": "samsung",
@@ -51,6 +51,19 @@
       "last": {
         "date": "2026-09-04",
         "value": 1016.59
+      }
+    },
+    {
+      "id": "hynix-adr",
+      "source": "네이버 금융 SKHY.O (SKHY)",
+      "count": 41,
+      "first": {
+        "date": "2026-07-10",
+        "value": 168.01
+      },
+      "last": {
+        "date": "2026-09-04",
+        "value": 177
       }
     }
   ],
@@ -306,7 +319,5 @@
     }
   ],
   "warnings": [],
-  "optionalFailures": [
-    "SK하이닉스 ADR(HXSCL): HXSCL.K: 예상 밖 응답: []; HXSCL.O: 예상 밖 응답: []; HXSCL.N: 예상 밖 응답: []; HXSCL.A: 예상 밖 응답: []; HXSCL: 예상 밖 응답: [] / 예상 밖 응답: <!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name= / query1.finance.yahoo.com: Yahoo Finance 429 Too Many Requests; query2.finance.yahoo.com: Yahoo Finance 429 Too Many Requests; query1.finance.yahoo.com: Yahoo Finance 429 Too Many Requests; query2.finance.yahoo.com: Yahoo Finance 429 Too Many Requests"
-  ]
+  "optionalFailures": []
 }

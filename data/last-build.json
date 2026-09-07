@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-07T07:31:23.902Z",
+  "generatedAt": "2026-09-07T07:34:14.398Z",
   "stocks": [
     {
       "id": "samsung",
@@ -157,6 +157,32 @@
       "last": {
         "date": "2026-08-31",
         "value": 9.967
+      }
+    },
+    {
+      "id": "NAND_1Tb_QLC_CFM",
+      "source": "cfm",
+      "count": 1,
+      "first": {
+        "date": "2026-09-07",
+        "value": 26
+      },
+      "last": {
+        "date": "2026-09-07",
+        "value": 26
+      }
+    },
+    {
+      "id": "NAND_1Tb_TLC_CFM",
+      "source": "cfm",
+      "count": 1,
+      "first": {
+        "date": "2026-09-07",
+        "value": 29
+      },
+      "last": {
+        "date": "2026-09-07",
+        "value": 29
       }
     },
     {

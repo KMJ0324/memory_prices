@@ -55,6 +55,17 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+      - name: Commit page snapshot for offline debugging
+        if: inputs.dry_run
+        run: |
+          mkdir -p debug
+          cp /tmp/dramexchange.html debug/dramexchange.html
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f debug/dramexchange.html
+          git diff --cached --quiet || git commit -m "chore(debug): DRAMeXchange 페이지 스냅샷"
+          git push
+
       - name: Flag spot fetch failure in the run summary
         if: steps.spot.outcome == 'failure'
         run: |

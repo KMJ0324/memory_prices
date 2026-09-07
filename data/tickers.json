@@ -31,5 +31,14 @@
     "currency": "USD",
     "color": "#4cd1a1",
     "naver": "MU.O"
+  },
+  {
+    "id": "hynix-adr",
+    "symbol": "HXSCL",
+    "stooq": "hxscl.us",
+    "naver": "HXSCL.K",
+    "label": "SK하이닉스 ADR",
+    "currency": "USD",
+    "color": "#ff9db0"
   }
 ]

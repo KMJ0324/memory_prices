@@ -1,0 +1,8 @@
+{
+  "_comment": "ChinaFlashMarket(CFM) NAND 웨이퍼 현물가. DRAMeXchange 와는 별개 출처라 source 열로 구분한다.",
+  "source": "https://www.chinaflashmarket.com/price/nandflash",
+  "items": [
+    { "id": "NAND_1Tb_TLC_CFM", "match": "1Tb.*TLC", "min": 0.5, "max": 400 },
+    { "id": "NAND_1Tb_QLC_CFM", "match": "1Tb.*QLC", "min": 0.5, "max": 400 }
+  ]
+}

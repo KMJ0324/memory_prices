@@ -244,13 +244,7 @@ async function main() {
   console.log("현물가 수집:");
   const memory = await buildMemory();
 
-  await mkdir(OUT_DIR, { recursive: true });
-  await writeFile(path.join(OUT_DIR, "stocks.json"), JSON.stringify({ ...stocks, generatedAt }));
-  await writeFile(path.join(OUT_DIR, "memory.json"), JSON.stringify({ ...memory, generatedAt }));
-
-  console.log(`\npublic/data/*.json 생성 완료 (${generatedAt})`);
-
-  // 배포된 데이터가 무엇이었는지 리포에서 되짚을 수 있게 남기는 작은 감사 로그.
+  // 실패했을 때가 오히려 더 알아야 할 때이므로 가드보다 먼저 쓴다. 배포된 데이터가 무엇이었는지 리포에서 되짚을 수 있게 남기는 작은 감사 로그.
   const summarize = (s) => ({
     id: s.id,
     source: s.source,
@@ -272,6 +266,7 @@ async function main() {
     ) + "\n",
   );
 
+
   // 한 종목이라도 실패하는 건 화면에 경고로 뜨면 되지만, 한 축이 통째로 비면
   // 겹쳐 볼 게 없다. 반쪽짜리를 새로 배포하느니 직전 배포를 그대로 두는 게 낫다.
   if (stocks.series.length === 0) {
@@ -282,6 +277,13 @@ async function main() {
     console.error("현물가 계열이 하나도 없습니다. 배포를 중단합니다.");
     process.exit(1);
   }
+
+  await mkdir(OUT_DIR, { recursive: true });
+  await writeFile(path.join(OUT_DIR, "stocks.json"), JSON.stringify({ ...stocks, generatedAt }));
+  await writeFile(path.join(OUT_DIR, "memory.json"), JSON.stringify({ ...memory, generatedAt }));
+
+  console.log(`\npublic/data/*.json 생성 완료 (${generatedAt})`);
+
 }
 
 main().catch((err) => {

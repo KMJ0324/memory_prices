@@ -62,6 +62,8 @@ jobs:
         run: node scripts/build-data.mjs
 
       - name: Commit data updates
+        # 수집이 실패해도 last-build.json 은 커밋한다 — 실패 원인이 거기 남는다.
+        if: always()
         run: |
           if git diff --quiet -- data/; then
             echo "데이터 변경 없음"

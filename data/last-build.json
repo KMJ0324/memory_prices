@@ -1,0 +1,90 @@
+{
+  "generatedAt": "2026-09-07T05:26:42.768Z",
+  "stocks": [],
+  "memory": [
+    {
+      "id": "DRAM_DDR4_8Gb_3200",
+      "source": "dramexchange",
+      "count": 1,
+      "first": {
+        "date": "2026-09-07",
+        "value": 45.357
+      },
+      "last": {
+        "date": "2026-09-07",
+        "value": 45.357
+      }
+    },
+    {
+      "id": "DRAM_DDR4_8Gb_eTT",
+      "source": "dramexchange",
+      "count": 1,
+      "first": {
+        "date": "2026-09-07",
+        "value": 4.94
+      },
+      "last": {
+        "date": "2026-09-07",
+        "value": 4.94
+      }
+    },
+    {
+      "id": "DRAM_DDR5_16Gb_4800",
+      "source": "dramexchange",
+      "count": 1,
+      "first": {
+        "date": "2026-09-07",
+        "value": 54.133
+      },
+      "last": {
+        "date": "2026-09-07",
+        "value": 54.133
+      }
+    },
+    {
+      "id": "DRAM_DDR5_16Gb_eTT",
+      "source": "dramexchange",
+      "count": 1,
+      "first": {
+        "date": "2026-09-07",
+        "value": 24
+      },
+      "last": {
+        "date": "2026-09-07",
+        "value": 24
+      }
+    },
+    {
+      "id": "NAND_128Gb_TLC",
+      "source": "dramexchange",
+      "count": 1,
+      "first": {
+        "date": "2026-08-31",
+        "value": 9.967
+      },
+      "last": {
+        "date": "2026-08-31",
+        "value": 9.967
+      }
+    },
+    {
+      "id": "NAND_512Gb_TLC",
+      "source": "dramexchange",
+      "count": 1,
+      "first": {
+        "date": "2026-08-31",
+        "value": 20.708
+      },
+      "last": {
+        "date": "2026-08-31",
+        "value": 20.708
+      }
+    }
+  ],
+  "warnings": [
+    "삼성전자(005930.KS) 주가를 불러오지 못했습니다: Stooq 403 Forbidden / Yahoo Finance 403 Forbidden",
+    "삼성전자우(005935.KS) 주가를 불러오지 못했습니다: Stooq 403 Forbidden / Yahoo Finance 403 Forbidden",
+    "SK하이닉스(000660.KS) 주가를 불러오지 못했습니다: Stooq 403 Forbidden / Yahoo Finance 403 Forbidden",
+    "마이크론(MU) 주가를 불러오지 못했습니다: Stooq 403 Forbidden / Yahoo Finance 403 Forbidden"
+  ]
+}

@@ -1,8 +1,11 @@
 # memory_prices
 
-DRAM · NAND 현물가와 메모리 반도체 종목 주가를 한 차트에 겹쳐 보는 Next.js 앱.
+DRAM · NAND 현물가·고정거래가와 메모리 반도체 종목 주가를 한 차트에 겹쳐 보는 Next.js 앱.
 
-- **현물가(spot)**: DDR5 16Gb(4800/5600, eTT), DDR4 8Gb(3200, eTT), NAND 512Gb TLC, NAND 128Gb TLC
+- **현물가(spot)**: DDR5 16Gb(4800/5600, eTT), DDR4 16Gb(3200, eTT), DDR4 8Gb(3200, eTT),
+  NAND 512Gb·128Gb TLC Wafer — 출처 DRAMeXchange, 값은 `Session Average`
+- **현물가(CFM)**: NAND 1Tb TLC·1Tb QLC Wafer — 출처 ChinaFlashMarket, 값은 `当前价`.
+  출처가 다르면 같은 품목이라도 시세가 다릅니다(512Gb TLC: DXI $20.71 / CFM $22.00)
 - **고정거래가(contract)**: TrendForce 공개 표의 DRAM·NAND 품목 전체
 - **주가**: 삼성전자(005930.KS), 삼성전자우(005935.KS), SK하이닉스(000660.KS), 마이크론(MU)
 
@@ -76,8 +79,10 @@ date,series,price,unit,source
 - `series`: `DRAM_DDR5_16Gb_4800` / `DRAM_DDR5_16Gb_eTT` / `DRAM_DDR4_8Gb_3200` /
   `DRAM_DDR4_8Gb_eTT` / `NAND_512Gb_TLC` / `NAND_128Gb_TLC`
   (라벨은 `src/lib/tickers.ts` 의 `MEMORY_LABELS`)
-- `source`: 출처. `PLACEHOLDER` 인 행이 하나라도 있으면 그 계열 전체가
-  경고 배너 + 점선으로 표시됩니다.
+- `source`: 출처(`dramexchange` / `cfm`). `PLACEHOLDER` 인 행이 하나라도 있으면
+  그 계열 전체가 경고 배너 + 점선으로 표시됩니다.
+- `scripts/dramexchange-map.json` 의 `featured` 가 차트에서 기본으로 켤 계열입니다.
+  나머지는 범례를 눌러 켭니다.
 
 > **현물가 이력은 2026-09-07부터 쌓입니다.** DRAMeXchange는 당일 시세만 노출하고
 > 과거 시계열은 제공하지 않아, 수집을 시작한 날부터 하루씩 누적됩니다. 주가는

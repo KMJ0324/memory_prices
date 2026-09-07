@@ -85,6 +85,19 @@ export default function Home() {
   const memorySeries = all.filter((s) => s.kind === "memory");
   const stockSeries = all.filter((s) => s.kind === "stock");
 
+  // 같은 제공처를 종목 수만큼 늘어놓지 않는다: "네이버 금융 (005930.KS)" → "네이버 금융".
+  const providers = (list: Series[]) => [
+    ...new Set(list.map((s) => s.source.replace(/\s*\(.*\)\s*$/, "").trim()).filter(Boolean)),
+  ];
+  const stockSource = providers(stockSeries).join(", ");
+  const memorySource = providers(memorySeries).join(", ");
+
+  // 수집을 막 시작해 점이 몇 개뿐이면 그 사실을 화면에서 밝힌다.
+  const memoryStart =
+    memorySeries.length > 0 && Math.max(...memorySeries.map((s) => s.points.length)) < 20
+      ? memorySeries.map((s) => s.points[0]?.date).filter(Boolean).sort()[0]
+      : undefined;
+
   return (
     <main className="page">
       <header className="header">
@@ -166,13 +179,17 @@ export default function Home() {
               <br />
             </>
           )}
-          주가: Yahoo Finance 수정종가 · 현물가:{" "}
-          {memorySeries.some((s) => s.source === "PLACEHOLDER")
-            ? "data/memory-spot.csv (샘플 값, 점선으로 표시)"
-            : memorySeries.map((s) => s.source).join(", ") || "-"}
+          {stockSource && `주가: ${stockSource}`}
+          {stockSource && memorySource && " · "}
+          {memorySource && `현물가: ${memorySource}`}
         </p>
+        {memoryStart && (
+          <p className="muted">
+            현물가는 {memoryStart}부터 수집을 시작해 하루씩 쌓입니다. DRAMeXchange 는 당일
+            시세만 공개하고 과거 시계열을 제공하지 않습니다.
+          </p>
+        )}
         <p className="muted">
-          {latest && `최신 현물가 기준일: ${latest}. `}
           {mode === "actual"
             ? "실제 가격 모드에서는 통화·단위가 달라 축이 분리됩니다. 시계열 모양 비교에는 기준일=100 모드가 적합합니다."
             : "각 계열의 화면 내 첫 값을 100으로 환산한 상대 지수입니다."}

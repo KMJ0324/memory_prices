@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-07T05:26:42.768Z",
+  "generatedAt": "2026-09-07T05:27:24.766Z",
   "stocks": [],
   "memory": [
     {
@@ -82,9 +82,9 @@
     }
   ],
   "warnings": [
-    "삼성전자(005930.KS) 주가를 불러오지 못했습니다: Stooq 403 Forbidden / Yahoo Finance 403 Forbidden",
-    "삼성전자우(005935.KS) 주가를 불러오지 못했습니다: Stooq 403 Forbidden / Yahoo Finance 403 Forbidden",
-    "SK하이닉스(000660.KS) 주가를 불러오지 못했습니다: Stooq 403 Forbidden / Yahoo Finance 403 Forbidden",
-    "마이크론(MU) 주가를 불러오지 못했습니다: Stooq 403 Forbidden / Yahoo Finance 403 Forbidden"
+    "삼성전자(005930.KS) 주가를 불러오지 못했습니다: 예상 밖 응답: <!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name= / Yahoo Finance 429 Too Many Requests",
+    "삼성전자우(005935.KS) 주가를 불러오지 못했습니다: 예상 밖 응답: <!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name= / Yahoo Finance 429 Too Many Requests",
+    "SK하이닉스(000660.KS) 주가를 불러오지 못했습니다: 예상 밖 응답: <!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name= / Yahoo Finance 429 Too Many Requests",
+    "마이크론(MU) 주가를 불러오지 못했습니다: 예상 밖 응답: <!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name= / Yahoo Finance 429 Too Many Requests"
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "_comment": "TrendForce 고정거래가 페이지. 'Contract Price' 섹션의 표를 자동으로 찾아 모든 품목을 수집하므로 품목 목록을 미리 적을 필요가 없다. labels 는 한글 표기, featured 는 차트에서 기본으로 켤 계열이다.",
+  "_comment": "TrendForce 고정거래가 페이지. 'Contract Price' 섹션의 표를 자동으로 찾되, only 에 적힌 계열만 CSV에 남긴다(비우면 전부 수집). labels 는 한글 표기, featured 는 차트에서 기본으로 켤 계열이다.",
   "pages": [
     {
       "id": "dram",
@@ -24,12 +24,12 @@
   ],
   "labels": {
     "CONTRACT_DRAM_DDR4_8Gb_1Gx8": "고정 DDR4 8Gb",
-    "CONTRACT_DRAM_DDR4_16Gb_2Gx8": "고정 DDR4 16Gb",
     "CONTRACT_DRAM_DDR5_8GB_SO_DIMM": "고정 DDR5 8GB SO-DIMM",
-    "CONTRACT_DRAM_DDR4_16GB_SO_DIMM": "고정 DDR4 16GB SO-DIMM",
-    "CONTRACT_DRAM_DDR4_8GB_SO_DIMM": "고정 DDR4 8GB SO-DIMM",
-    "CONTRACT_NAND_NAND_128Gb_16Gx8_MLC": "고정 NAND 128Gb MLC",
-    "CONTRACT_NAND_NAND_64Gb_8Gx8_MLC": "고정 NAND 64Gb MLC",
-    "CONTRACT_NAND_NAND_32Gb_4Gx8_MLC": "고정 NAND 32Gb MLC"
-  }
+    "CONTRACT_NAND_NAND_128Gb_16Gx8_MLC": "고정 NAND 128Gb MLC"
+  },
+  "only": [
+    "CONTRACT_DRAM_DDR4_8Gb_1Gx8",
+    "CONTRACT_DRAM_DDR5_8GB_SO_DIMM",
+    "CONTRACT_NAND_NAND_128Gb_16Gx8_MLC"
+  ]
 }

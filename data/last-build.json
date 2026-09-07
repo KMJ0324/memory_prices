@@ -1,72 +1,6 @@
 {
-  "generatedAt": "2026-09-07T07:45:47.414Z",
-  "stocks": [
-    {
-      "id": "samsung",
-      "source": "네이버 금융 (005930.KS)",
-      "count": 1470,
-      "first": {
-        "date": "2020-09-07",
-        "value": 56500
-      },
-      "last": {
-        "date": "2026-09-07",
-        "value": 270000
-      }
-    },
-    {
-      "id": "samsung-pref",
-      "source": "네이버 금융 (005935.KS)",
-      "count": 1470,
-      "first": {
-        "date": "2020-09-07",
-        "value": 48500
-      },
-      "last": {
-        "date": "2026-09-07",
-        "value": 199600
-      }
-    },
-    {
-      "id": "hynix",
-      "source": "네이버 금융 (000660.KS)",
-      "count": 1470,
-      "first": {
-        "date": "2020-09-07",
-        "value": 78400
-      },
-      "last": {
-        "date": "2026-09-07",
-        "value": 1783000
-      }
-    },
-    {
-      "id": "micron",
-      "source": "네이버 금융 MU.O (MU)",
-      "count": 1506,
-      "first": {
-        "date": "2020-09-08",
-        "value": 45.03
-      },
-      "last": {
-        "date": "2026-09-04",
-        "value": 1016.59
-      }
-    },
-    {
-      "id": "hynix-adr",
-      "source": "네이버 금융 SKHY.O (SKHY)",
-      "count": 41,
-      "first": {
-        "date": "2026-07-10",
-        "value": 168.01
-      },
-      "last": {
-        "date": "2026-09-04",
-        "value": 177
-      }
-    }
-  ],
+  "generatedAt": "2026-09-07T08:14:04.884Z",
+  "stocks": [],
   "memory": [
     {
       "id": "DRAM_DDR4_16Gb_3200",
@@ -79,19 +13,6 @@
       "last": {
         "date": "2026-09-07",
         "value": 93.25
-      }
-    },
-    {
-      "id": "DRAM_DDR4_16Gb_eTT",
-      "source": "dramexchange",
-      "count": 1,
-      "first": {
-        "date": "2026-09-07",
-        "value": 11.975
-      },
-      "last": {
-        "date": "2026-09-07",
-        "value": 11.975
       }
     },
     {
@@ -108,19 +29,6 @@
       }
     },
     {
-      "id": "DRAM_DDR4_8Gb_eTT",
-      "source": "dramexchange",
-      "count": 1,
-      "first": {
-        "date": "2026-09-07",
-        "value": 4.95
-      },
-      "last": {
-        "date": "2026-09-07",
-        "value": 4.95
-      }
-    },
-    {
       "id": "DRAM_DDR5_16Gb_4800",
       "source": "dramexchange",
       "count": 1,
@@ -131,32 +39,6 @@
       "last": {
         "date": "2026-09-07",
         "value": 54.133
-      }
-    },
-    {
-      "id": "DRAM_DDR5_16Gb_eTT",
-      "source": "dramexchange",
-      "count": 1,
-      "first": {
-        "date": "2026-09-07",
-        "value": 24
-      },
-      "last": {
-        "date": "2026-09-07",
-        "value": 24
-      }
-    },
-    {
-      "id": "NAND_128Gb_TLC",
-      "source": "dramexchange",
-      "count": 1,
-      "first": {
-        "date": "2026-08-31",
-        "value": 9.967
-      },
-      "last": {
-        "date": "2026-08-31",
-        "value": 9.967
       }
     },
     {
@@ -201,58 +83,6 @@
   ],
   "contract": [
     {
-      "id": "CONTRACT_DRAM_DDR3_4Gb_256Mx16",
-      "source": "TrendForce",
-      "count": 1,
-      "first": {
-        "date": "2026-07-31",
-        "value": 14.5
-      },
-      "last": {
-        "date": "2026-07-31",
-        "value": 14.5
-      }
-    },
-    {
-      "id": "CONTRACT_DRAM_DDR4_16Gb_2Gx8",
-      "source": "TrendForce",
-      "count": 1,
-      "first": {
-        "date": "2026-07-31",
-        "value": 48
-      },
-      "last": {
-        "date": "2026-07-31",
-        "value": 48
-      }
-    },
-    {
-      "id": "CONTRACT_DRAM_DDR4_16GB_SO_DIMM",
-      "source": "TrendForce",
-      "count": 1,
-      "first": {
-        "date": "2026-07-31",
-        "value": 265
-      },
-      "last": {
-        "date": "2026-07-31",
-        "value": 265
-      }
-    },
-    {
-      "id": "CONTRACT_DRAM_DDR4_4Gb_256Mx16",
-      "source": "TrendForce",
-      "count": 1,
-      "first": {
-        "date": "2026-07-31",
-        "value": 14.5
-      },
-      "last": {
-        "date": "2026-07-31",
-        "value": 14.5
-      }
-    },
-    {
       "id": "CONTRACT_DRAM_DDR4_8Gb_1Gx8",
       "source": "TrendForce",
       "count": 1,
@@ -263,19 +93,6 @@
       "last": {
         "date": "2026-07-31",
         "value": 24
-      }
-    },
-    {
-      "id": "CONTRACT_DRAM_DDR4_8GB_SO_DIMM",
-      "source": "TrendForce",
-      "count": 1,
-      "first": {
-        "date": "2026-07-31",
-        "value": 139
-      },
-      "last": {
-        "date": "2026-07-31",
-        "value": 139
       }
     },
     {
@@ -292,45 +109,6 @@
       }
     },
     {
-      "id": "CONTRACT_NAND_1TB_mSATA_M_2_TLC_PCIe_Value_Grade",
-      "source": "TrendForce",
-      "count": 1,
-      "first": {
-        "date": "2026-04-27",
-        "value": 270.1
-      },
-      "last": {
-        "date": "2026-04-27",
-        "value": 270.1
-      }
-    },
-    {
-      "id": "CONTRACT_NAND_256GB_mSATA_M_2_TLC_PCIe_Value_Grade",
-      "source": "TrendForce",
-      "count": 1,
-      "first": {
-        "date": "2026-04-27",
-        "value": 104.6
-      },
-      "last": {
-        "date": "2026-04-27",
-        "value": 104.6
-      }
-    },
-    {
-      "id": "CONTRACT_NAND_512GB_mSATA_M_2_TLC_PCIe_Value_Grade",
-      "source": "TrendForce",
-      "count": 1,
-      "first": {
-        "date": "2026-04-27",
-        "value": 170.2
-      },
-      "last": {
-        "date": "2026-04-27",
-        "value": 170.2
-      }
-    },
-    {
       "id": "CONTRACT_NAND_NAND_128Gb_16Gx8_MLC",
       "source": "TrendForce",
       "count": 1,
@@ -342,34 +120,15 @@
         "date": "2026-07-31",
         "value": 30.048
       }
-    },
-    {
-      "id": "CONTRACT_NAND_NAND_32Gb_4Gx8_MLC",
-      "source": "TrendForce",
-      "count": 1,
-      "first": {
-        "date": "2026-07-31",
-        "value": 17.865
-      },
-      "last": {
-        "date": "2026-07-31",
-        "value": 17.865
-      }
-    },
-    {
-      "id": "CONTRACT_NAND_NAND_64Gb_8Gx8_MLC",
-      "source": "TrendForce",
-      "count": 1,
-      "first": {
-        "date": "2026-07-31",
-        "value": 23.11
-      },
-      "last": {
-        "date": "2026-07-31",
-        "value": 23.11
-      }
     }
   ],
-  "warnings": [],
-  "optionalFailures": []
+  "warnings": [
+    "삼성전자(005930.KS) 주가를 불러오지 못했습니다: 네이버 403 Forbidden / 005930.kr: Stooq 403 Forbidden / 005930.KS@query1.finance.yahoo.com: Yahoo Finance 403 Forbidden",
+    "삼성전자우(005935.KS) 주가를 불러오지 못했습니다: 네이버 403 Forbidden / 005935.kr: Stooq 403 Forbidden / 005935.KS@query1.finance.yahoo.com: Yahoo Finance 403 Forbidden",
+    "SK하이닉스(000660.KS) 주가를 불러오지 못했습니다: 네이버 403 Forbidden / 000660.kr: Stooq 403 Forbidden / 000660.KS@query1.finance.yahoo.com: Yahoo Finance 403 Forbidden",
+    "마이크론(MU) 주가를 불러오지 못했습니다: MU.O: 네이버 해외 403 Forbidden / mu.us: Stooq 403 Forbidden / MU@query1.finance.yahoo.com: Yahoo Finance 403 Forbidden"
+  ],
+  "optionalFailures": [
+    "SK하이닉스 ADR(SKHY): SKHY.K: 네이버 해외 403 Forbidden; SKHY.O: 네이버 해외 403 Forbidden; SKHY.N: 네이버 해외 403 Forbidden; SKHY: 네이버 해외 403 Forbidden; HXSCL.K: 네이버 해외 403 Forbidden / skhy.us: Stooq 403 Forbidden; hxscl.us: Stooq 403 Forbidden / SKHY@query1.finance.yahoo.com: Yahoo Finance 403 Forbidden; HXSCL@query1.finance.yahoo.com: Yahoo Finance 403 Forbidden"
+  ]
 }

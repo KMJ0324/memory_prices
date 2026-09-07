@@ -2,11 +2,11 @@
 
 DRAM · NAND 현물가·고정거래가와 메모리 반도체 종목 주가를 한 차트에 겹쳐 보는 Next.js 앱.
 
-- **현물가(spot)**: DDR5 16Gb(4800/5600, eTT), DDR4 16Gb(3200, eTT), DDR4 8Gb(3200, eTT),
-  NAND 512Gb·128Gb TLC Wafer — 출처 DRAMeXchange, 값은 `Session Average`
+- **현물가(spot)**: DDR5 16Gb 4800/5600, DDR4 16Gb 3200, DDR4 8Gb 3200,
+  NAND 512Gb TLC Wafer — 출처 DRAMeXchange, 값은 `Session Average`
 - **현물가(CFM)**: NAND 1Tb TLC·1Tb QLC Wafer — 출처 ChinaFlashMarket, 값은 `当前价`.
   출처가 다르면 같은 품목이라도 시세가 다릅니다(512Gb TLC: DXI $20.71 / CFM $22.00)
-- **고정거래가(contract)**: TrendForce 공개 표의 DRAM·NAND 품목 전체
+- **고정거래가(contract)**: DDR4 8Gb, DDR5 8GB SO-DIMM, NAND 128Gb MLC — 출처 TrendForce
 - **주가**: 삼성전자(005930.KS), 삼성전자우(005935.KS), SK하이닉스(000660.KS), 마이크론(MU)
 
 ## 실행
@@ -81,8 +81,8 @@ date,series,price,unit,source
   (라벨은 `src/lib/tickers.ts` 의 `MEMORY_LABELS`)
 - `source`: 출처(`dramexchange` / `cfm`). `PLACEHOLDER` 인 행이 하나라도 있으면
   그 계열 전체가 경고 배너 + 점선으로 표시됩니다.
-- `scripts/dramexchange-map.json` 의 `featured` 가 차트에서 기본으로 켤 계열입니다.
-  나머지는 범례를 눌러 켭니다.
+- 수집 품목은 `scripts/dramexchange-map.json` 의 `items`, `scripts/cfm-map.json` 의
+  `items` 에 적힌 것만입니다. 늘리려면 여기에 한 줄 추가하면 됩니다.
 
 > **현물가 이력은 2026-09-07부터 쌓입니다.** DRAMeXchange는 당일 시세만 노출하고
 > 과거 시계열은 제공하지 않아, 수집을 시작한 날부터 하루씩 누적됩니다. 주가는
@@ -107,8 +107,9 @@ date,series,price,unit,source,period
 
 - `date` 는 섹션의 `Last Update`, `period` 는 제목의 기간 표기(`2H Jul`, `2Q 26`)
 - 가격은 현물가와 같은 **`Session Average`** 열
-- 페이지 목록은 `scripts/trendforce-map.json` 의 `pages`. `featured` 는 차트에서
-  기본으로 켤 계열, `labels` 는 한글 표기입니다(없으면 품목명에서 자동 생성)
+- 페이지 목록은 `scripts/trendforce-map.json` 의 `pages`. 표는 자동으로 전부
+  발견하지만 **`only` 에 적힌 계열만 CSV 에 남깁니다**(비우면 전부 수집).
+  `labels` 는 한글 표기입니다(없으면 품목명에서 자동 생성)
 
 > 한 페이지에 현물가 표와 고정거래가 표가 함께 있고 사이드바에도 "Contract
 > Price" 링크가 있어서, 단순히 문자열이 있는지만 보면 현물가 표를 고정거래가로

@@ -62,7 +62,10 @@ export function slugify(category, item) {
   return `CONTRACT_${category}_${body}`;
 }
 
-export function parse(html, category) {
+export function parse(html, category, only) {
+  // only 가 비어 있지 않으면 그 계열만 남긴다. 자동 발견은 그대로 두되
+  // CSV 에는 보고 싶은 것만 쌓이게 하기 위함이다.
+  const keep = only && only.length > 0 ? new Set(only) : null;
   const tables = [...html.matchAll(/<table[\s\S]*?<\/table>/gi)];
   const found = [];
   const sections = [];
@@ -102,7 +105,9 @@ export function parse(html, category) {
       const item = cells[0];
       const price = Number(String(cells[priceIdx] ?? "").replace(/[$,\s]/g, ""));
       if (!item || !Number.isFinite(price) || price <= 0) continue;
-      found.push({ date, series: slugify(category, item), price, unit: "USD", source: "trendforce", period, item });
+      const series = slugify(category, item);
+      if (keep && !keep.has(series)) continue;
+      found.push({ date, series, price, unit: "USD", source: "trendforce", period, item });
       n++;
     }
     sections.push(`${title}${period ? ` (${period})` : ""} · ${date} · ${n}건`);
@@ -167,7 +172,7 @@ async function main() {
       await writeFile(path.join(dir, `${page.id}.html`), html, "utf8");
     }
 
-    const { found, sections } = parse(html, page.category);
+    const { found, sections } = parse(html, page.category, config.only);
     console.log(`${page.id} (${page.category}):`);
     for (const s of sections) console.log(`  · ${s}`);
     if (found.length === 0) problems.push(`${page.url ?? page.file}: Contract Price 표를 찾지 못했습니다`);

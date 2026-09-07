@@ -60,6 +60,17 @@ jobs:
         continue-on-error: true
         run: node scripts/fetch-trendforce.mjs ${{ inputs.dry_run && '--dry-run' || '' }}
 
+      - name: Fetch CFM NAND wafer prices
+        id: cfm
+        continue-on-error: true
+        run: node scripts/fetch-cfm.mjs ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Flag CFM fetch failure in the run summary
+        if: steps.cfm.outcome == 'failure'
+        run: |
+          echo "### CFM 수집 실패" >> "$GITHUB_STEP_SUMMARY"
+          echo "기존 CSV 값으로 배포했습니다. \`scripts/cfm-map.json\` 을 확인하세요." >> "$GITHUB_STEP_SUMMARY"
+
       - name: Flag contract fetch failure in the run summary
         if: steps.contract.outcome == 'failure'
         run: |
@@ -75,17 +86,6 @@ jobs:
           path: /tmp/dramexchange.html
           if-no-files-found: ignore
           retention-days: 7
-
-      - name: TEMP CFM 구조 덤프
-        if: inputs.dry_run
-        continue-on-error: true
-        run: |
-          node scripts/fetch-cfm.mjs --dump-dir debug/
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f debug/
-          git diff --cached --quiet || git commit -m "chore(debug): CFM 페이지 스냅샷"
-          git push origin "HEAD:${DATA_BRANCH}"
 
       - name: Build static data
         env:

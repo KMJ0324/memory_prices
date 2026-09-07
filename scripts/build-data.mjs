@@ -17,6 +17,7 @@ const OUT_DIR = path.join(ROOT, "public", "data");
 const CSV_PATH = path.join(ROOT, "data", "memory-spot.csv");
 const CONTRACT_CSV_PATH = path.join(ROOT, "data", "memory-contract.csv");
 const TRENDFORCE_MAP = path.join(ROOT, "scripts", "trendforce-map.json");
+const DRAMEXCHANGE_MAP = path.join(ROOT, "scripts", "dramexchange-map.json");
 
 const MEMORY_LABELS = {
   DRAM_DDR5_16Gb_4800: "DDR5 16Gb 4800/5600",
@@ -343,6 +344,14 @@ async function buildMemory() {
     }
   }
 
+  let featured = new Set();
+  try {
+    const map = JSON.parse(await readFile(DRAMEXCHANGE_MAP, "utf8"));
+    featured = new Set(map.featured ?? []);
+  } catch {
+    /* 매핑이 없으면 전부 켠다 */
+  }
+
   const rows = parseCsv(await readFile(CSV_PATH, "utf8"));
   const grouped = new Map();
   for (const row of rows) {
@@ -363,6 +372,7 @@ async function buildMemory() {
       currency: "USD",
       unit: list[0]?.unit ?? "",
       source: sources.includes("PLACEHOLDER") ? "PLACEHOLDER" : sources.join(", ") || "unknown",
+      featured: featured.size === 0 || featured.has(id),
       points: list.map((r) => ({ date: r.date, value: r.price })),
     });
     console.log(`  ${id}: ${list.length}행 (${list[0].date} ~ ${list.at(-1).date})`);

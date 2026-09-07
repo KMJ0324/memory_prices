@@ -49,9 +49,10 @@ export default function Home() {
         if (cancelled) return;
         const merged = [...memory.series, ...stocks.series];
         setAll(merged);
-        // 고정거래가는 품목이 많아 전부 켜면 읽을 수 없다. featured 만 켠다.
+        // 품목이 많아 전부 켜면 읽을 수 없다. featured 로 지정된 것만 켠다.
+        // 주가는 종목 수가 적으므로 항상 켜둔다.
         setHidden(
-          new Set(merged.filter((s) => s.kind === "contract" && !s.featured).map((s) => s.id)),
+          new Set(merged.filter((s) => s.kind !== "stock" && !s.featured).map((s) => s.id)),
         );
         setWarnings([...memory.warnings, ...stocks.warnings]);
         setGeneratedAt(stocks.generatedAt ?? memory.generatedAt);

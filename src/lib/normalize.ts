@@ -4,7 +4,7 @@ export type Mode = "normalized" | "actual";
 
 export function cutoffFor(range: string): string | null {
   const now = new Date();
-  const years: Record<string, number> = { "1y": 1, "2y": 2, "3y": 3, "5y": 5, "10y": 10 };
+  const years: Record<string, number> = { "1y": 1, "2y": 2, "3y": 3, "5y": 5 };
   const n = years[range];
   if (!n) return null;
   const d = new Date(now);

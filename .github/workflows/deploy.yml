@@ -55,23 +55,23 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-      - name: Commit updated CSV
-        run: |
-          if git diff --quiet -- data/memory-spot.csv; then
-            echo "현물가 변경 없음"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/memory-spot.csv
-          git commit -m "chore(data): update memory spot prices ($(date -u +%Y-%m-%d))"
-          git push
-
       - name: Build static data
         env:
           MEMORY_API_URL: ${{ vars.MEMORY_API_URL }}
           MEMORY_API_KEY: ${{ secrets.MEMORY_API_KEY }}
         run: node scripts/build-data.mjs
+
+      - name: Commit data updates
+        run: |
+          if git diff --quiet -- data/; then
+            echo "데이터 변경 없음"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/memory-spot.csv data/last-build.json
+          git commit -m "chore(data): update spot prices and build log ($(date -u +%Y-%m-%d))"
+          git push
 
       - name: Build site
         env:

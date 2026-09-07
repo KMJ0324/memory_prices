@@ -14,9 +14,9 @@ const Chart = dynamic(() => import("@/components/Chart"), {
 
 const RANGES = [
   { id: "1y", label: "1년" },
+  { id: "2y", label: "2년" },
   { id: "3y", label: "3년" },
   { id: "5y", label: "5년" },
-  { id: "10y", label: "10년" },
   { id: "max", label: "전체" },
 ];
 

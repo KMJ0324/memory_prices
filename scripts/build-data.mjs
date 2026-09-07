@@ -25,22 +25,58 @@ const MEMORY_LABELS = {
   NAND_128Gb_TLC: "NAND 128Gb TLC",
 };
 
-const RANGE = process.env.STOCK_RANGE ?? "10y";
+const YEARS = Number(process.env.STOCK_YEARS ?? 6);
 
 // ---------------------------------------------------------------- 주가
 
-async function fetchTicker(ticker) {
+const UA =
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36";
+
+function cutoffDate() {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - YEARS);
+  return d.toISOString().slice(0, 10);
+}
+
+/**
+ * Stooq: 키 없는 무료 CSV. Yahoo 가 데이터센터 IP를 자주 막기 때문에 이쪽을
+ * 먼저 시도한다. 응답은 Date,Open,High,Low,Close,Volume 형식이다.
+ */
+async function fromStooq(ticker) {
+  if (!ticker.stooq) throw new Error("stooq 심볼이 없습니다");
+
+  const res = await fetch(`https://stooq.com/q/d/l/?s=${encodeURIComponent(ticker.stooq)}&i=d`, {
+    headers: { "User-Agent": UA },
+  });
+  if (!res.ok) throw new Error(`Stooq ${res.status} ${res.statusText}`);
+
+  const text = await res.text();
+  const lines = text.trim().split(/\r?\n/);
+  const header = (lines.shift() ?? "").split(",").map((h) => h.trim().toLowerCase());
+  const iDate = header.indexOf("date");
+  const iClose = header.indexOf("close");
+  // 심볼이 없으면 Stooq 는 200 에 "No data" 본문을 준다.
+  if (iDate < 0 || iClose < 0) throw new Error(`예상 밖 응답: ${text.slice(0, 60)}`);
+
+  const from = cutoffDate();
+  const points = [];
+  for (const line of lines) {
+    const c = line.split(",");
+    const date = c[iDate];
+    const value = Number(c[iClose]);
+    if (!date || date < from || !Number.isFinite(value) || value <= 0) continue;
+    points.push({ date, value: Math.round(value * 100) / 100 });
+  }
+  if (points.length === 0) throw new Error("기간 내 유효한 종가가 없습니다");
+  return { points, currency: ticker.currency, via: "Stooq" };
+}
+
+async function fromYahoo(ticker) {
   const url =
     `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker.symbol)}` +
-    `?range=${RANGE}&interval=1d`;
+    `?range=${YEARS}y&interval=1d`;
 
-  const res = await fetch(url, {
-    // Yahoo rejects the default fetch UA outright.
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36",
-    },
-  });
+  const res = await fetch(url, { headers: { "User-Agent": UA } });
   if (!res.ok) throw new Error(`Yahoo Finance ${res.status} ${res.statusText}`);
 
   const json = await res.json();
@@ -62,17 +98,28 @@ async function fetchTicker(ticker) {
     });
   }
   if (points.length === 0) throw new Error("유효한 종가가 없습니다");
+  return { points, currency: result.meta?.currency ?? ticker.currency, via: "Yahoo Finance" };
+}
 
-  const currency = result.meta?.currency ?? ticker.currency;
-  return {
-    id: ticker.id,
-    label: ticker.label,
-    kind: "stock",
-    currency,
-    unit: currency === "KRW" ? "원" : "달러",
-    source: `Yahoo Finance (${ticker.symbol})`,
-    points,
-  };
+async function fetchTicker(ticker) {
+  const errors = [];
+  for (const source of [fromStooq, fromYahoo]) {
+    try {
+      const { points, currency, via } = await source(ticker);
+      return {
+        id: ticker.id,
+        label: ticker.label,
+        kind: "stock",
+        currency,
+        unit: currency === "KRW" ? "원" : "달러",
+        source: `${via} (${via === "Stooq" ? ticker.stooq : ticker.symbol})`,
+        points,
+      };
+    } catch (err) {
+      errors.push(err instanceof Error ? err.message : String(err));
+    }
+  }
+  throw new Error(errors.join(" / "));
 }
 
 async function buildStocks(tickers) {
@@ -84,7 +131,11 @@ async function buildStocks(tickers) {
     const t = tickers[i];
     if (outcome.status === "fulfilled") {
       series.push(outcome.value);
-      console.log(`  ${t.label} (${t.symbol}): ${outcome.value.points.length}일`);
+      const p = outcome.value.points;
+      console.log(
+        `  ${t.label}: ${p.length}일  ${p[0].date}~${p.at(-1).date}  ` +
+          `${p[0].value}→${p.at(-1).value}  via ${outcome.value.source}`,
+      );
     } else {
       const msg = outcome.reason instanceof Error ? outcome.reason.message : String(outcome.reason);
       warnings.push(`${t.label}(${t.symbol}) 주가를 불러오지 못했습니다: ${msg}`);
@@ -198,6 +249,28 @@ async function main() {
   await writeFile(path.join(OUT_DIR, "memory.json"), JSON.stringify({ ...memory, generatedAt }));
 
   console.log(`\npublic/data/*.json 생성 완료 (${generatedAt})`);
+
+  // 배포된 데이터가 무엇이었는지 리포에서 되짚을 수 있게 남기는 작은 감사 로그.
+  const summarize = (s) => ({
+    id: s.id,
+    source: s.source,
+    count: s.points.length,
+    first: s.points[0],
+    last: s.points.at(-1),
+  });
+  await writeFile(
+    path.join(ROOT, "data", "last-build.json"),
+    JSON.stringify(
+      {
+        generatedAt,
+        stocks: stocks.series.map(summarize),
+        memory: memory.series.map(summarize),
+        warnings: [...stocks.warnings, ...memory.warnings],
+      },
+      null,
+      2,
+    ) + "\n",
+  );
 
   // 한 종목이라도 실패하는 건 화면에 경고로 뜨면 되지만, 한 축이 통째로 비면
   // 겹쳐 볼 게 없다. 반쪽짜리를 새로 배포하느니 직전 배포를 그대로 두는 게 낫다.

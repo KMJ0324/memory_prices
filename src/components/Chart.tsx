@@ -89,7 +89,9 @@ export default function Chart({ series, mode }: Props) {
       name: s.label,
       type: "line" as const,
       yAxisIndex: mode === "normalized" ? 0 : Math.max(0, groups.indexOf(axisGroup(s))),
-      showSymbol: false,
+      // 수집 초기에는 점이 몇 개뿐이라 선만으로는 아무것도 안 보인다.
+      showSymbol: s.points.length < 60,
+      symbolSize: 5,
       smooth: false,
       // Unverified spot data is drawn dashed so it never reads as a real quote.
       lineStyle: {

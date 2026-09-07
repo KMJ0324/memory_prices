@@ -17,10 +17,12 @@ const OUT_DIR = path.join(ROOT, "public", "data");
 const CSV_PATH = path.join(ROOT, "data", "memory-spot.csv");
 
 const MEMORY_LABELS = {
-  DRAM_DDR4_8Gb: "DRAM DDR4 8Gb 현물가",
-  DRAM_DDR5_16Gb: "DRAM DDR5 16Gb 현물가",
-  NAND_512Gb_TLC: "NAND 512Gb TLC 현물가",
-  NAND_128Gb_MLC: "NAND 128Gb MLC 현물가",
+  DRAM_DDR5_16Gb_4800: "DDR5 16Gb 4800/5600",
+  DRAM_DDR5_16Gb_eTT: "DDR5 16Gb eTT",
+  DRAM_DDR4_8Gb_3200: "DDR4 8Gb 3200",
+  DRAM_DDR4_8Gb_eTT: "DDR4 8Gb eTT",
+  NAND_512Gb_TLC: "NAND 512Gb TLC",
+  NAND_128Gb_TLC: "NAND 128Gb TLC",
 };
 
 const RANGE = process.env.STOCK_RANGE ?? "10y";

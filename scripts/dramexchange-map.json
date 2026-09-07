@@ -1,10 +1,13 @@
 {
-  "_comment": "DRAMeXchange 현물가 표의 품목명 → CSV series id 매핑. 사이트 표기가 바뀌면 match 정규식만 고치면 됩니다.",
+  "_comment": "DRAMeXchange 현물가 표의 품목명 → CSV series id 매핑. 사이트 표기가 바뀌면 match 정규식만 고치면 됩니다. min/max 는 명백한 오파싱을 걸러내기 위한 느슨한 범위입니다.",
   "source": "https://www.dramexchange.com/",
+  "priceColumn": "Session Average",
   "items": [
-    { "id": "DRAM_DDR4_8Gb",  "match": "DDR4.*\\b8Gb\\b",              "unit": "USD/chip" },
-    { "id": "DRAM_DDR5_16Gb", "match": "DDR5.*\\b16Gb\\b",             "unit": "USD/chip" },
-    { "id": "NAND_512Gb_TLC", "match": "(512Gb.*TLC|TLC.*512Gb)",      "unit": "USD/wafer" },
-    { "id": "NAND_128Gb_MLC", "match": "(128Gb.*MLC|MLC.*128Gb)",      "unit": "USD/wafer" }
+    { "id": "DRAM_DDR5_16Gb_4800", "match": "^DDR5 16Gb .*4800",  "min": 1, "max": 400 },
+    { "id": "DRAM_DDR5_16Gb_eTT",  "match": "^DDR5 16Gb .*eTT",   "min": 1, "max": 400 },
+    { "id": "DRAM_DDR4_8Gb_3200",  "match": "^DDR4 8Gb .*3200",   "min": 0.5, "max": 300 },
+    { "id": "DRAM_DDR4_8Gb_eTT",   "match": "^DDR4 8Gb .*eTT",    "min": 0.5, "max": 300 },
+    { "id": "NAND_512Gb_TLC",      "match": "^512Gb TLC",         "min": 0.5, "max": 300 },
+    { "id": "NAND_128Gb_TLC",      "match": "^128Gb TLC",         "min": 0.3, "max": 200 }
   ]
 }

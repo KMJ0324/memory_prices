@@ -2,7 +2,7 @@
 
 DRAM · NAND 현물가와 메모리 반도체 종목 주가를 한 차트에 겹쳐 보는 Next.js 앱.
 
-- **현물가**: DRAM DDR4 8Gb, DDR5 16Gb, NAND 512Gb TLC, NAND 128Gb MLC
+- **현물가**: DDR5 16Gb(4800/5600, eTT), DDR4 8Gb(3200, eTT), NAND 512Gb TLC, NAND 128Gb TLC
 - **주가**: 삼성전자(005930.KS), 삼성전자우(005935.KS), SK하이닉스(000660.KS), 마이크론(MU)
 
 ## 실행
@@ -18,7 +18,8 @@ npm run dev     # http://localhost:3000
 - **기준일 = 100**: 각 계열의 화면 내 첫 값을 100으로 환산한 상대 지수. 원화 주가·달러 주가·달러 칩 가격을 한 축에서 비교할 수 있어 기본값입니다.
 - **실제 가격**: 통화·단위별로 축이 분리됩니다(현물가 USD / 주가 원 / 주가 USD).
 - 범례 칩을 눌러 계열을 켜고 끄고, 하단 슬라이더나 휠로 구간을 확대할 수 있습니다.
-- **점선**으로 그려진 계열은 아직 검증되지 않은 샘플(`PLACEHOLDER`) 데이터입니다.
+- `eTT` 는 미검사 커모디티 다이, 숫자(3200 / 4800)는 스펙 등급 제품입니다. 둘은
+  가격대가 크게 다르므로 같은 계열로 합치지 않고 따로 그립니다.
 
 ## 데이터
 
@@ -43,14 +44,21 @@ Yahoo Finance 차트 API의 **수정종가**(adjusted close) 10년치. 종목 �
 
 ```csv
 date,series,price,unit,source
-2026-09-05,DRAM_DDR4_8Gb,6.99,USD/chip,dramexchange
+2026-09-07,DRAM_DDR4_8Gb_eTT,4.940,USD,dramexchange
 ```
 
-- `date`: `YYYY-MM-DD`. 일별·월별 어느 쪽이든 됩니다.
-- `series`: `DRAM_DDR4_8Gb` / `DRAM_DDR5_16Gb` / `NAND_512Gb_TLC` / `NAND_128Gb_MLC`
+- `date`: `YYYY-MM-DD`. DRAM 표는 일별, NAND 표는 주별로 갱신되므로 계열마다
+  기준일이 다를 수 있습니다.
+- `series`: `DRAM_DDR5_16Gb_4800` / `DRAM_DDR5_16Gb_eTT` / `DRAM_DDR4_8Gb_3200` /
+  `DRAM_DDR4_8Gb_eTT` / `NAND_512Gb_TLC` / `NAND_128Gb_TLC`
   (라벨은 `src/lib/tickers.ts` 의 `MEMORY_LABELS`)
 - `source`: 출처. `PLACEHOLDER` 인 행이 하나라도 있으면 그 계열 전체가
   경고 배너 + 점선으로 표시됩니다.
+
+> **현물가 이력은 2026-09-07부터 쌓입니다.** DRAMeXchange는 당일 시세만 노출하고
+> 과거 시계열은 제공하지 않아, 수집을 시작한 날부터 하루씩 누적됩니다. 주가는
+> 10년치가 한 번에 들어오므로 초기에는 현물가 쪽만 짧게 보입니다. 과거 데이터를
+> 갖고 계시면 같은 스키마로 CSV에 붙여넣으면 그대로 그려집니다.
 
 유료·사내 피드를 쓴다면 리포지토리 변수 `MEMORY_API_URL` (필요시 시크릿
 `MEMORY_API_KEY`) 을 설정하세요. 그 URL을 CSV 대신 호출하고, 실패하면 자동으로
@@ -70,9 +78,22 @@ node scripts/fetch-dramexchange.mjs --html raw.html      # 저장된 HTML로 오
 node scripts/fetch-dramexchange.mjs --drop-placeholders  # 시드 샘플 행 일괄 제거
 ```
 
-품목명 → `series` 매핑은 **`scripts/dramexchange-map.json`** 에 정규식으로 들어 있습니다.
-사이트 표기가 바뀌어 하나도 매칭되지 않으면 스크립트가 0이 아닌 코드로 종료하면서
-페이지에서 찾은 품목명 목록을 출력하므로, 그걸 보고 `match` 만 고치면 됩니다.
+품목명 → `series` 매핑과 값의 허용 범위는 **`scripts/dramexchange-map.json`** 에
+들어 있습니다.
+
+파서는 페이지 구조에 대해 이렇게 동작합니다.
+
+- 가격은 열 위치를 상수로 박지 않고 **헤더 이름(`Session Average`)으로 찾습니다.**
+  표는 `Item | Daily High | Daily Low | Session High | Session Low | Session Average |
+  Change | History` 형태라, 첫 숫자 열을 집으면 High 값을 시세로 착각하게 됩니다.
+- 기준일은 표 바로 앞의 `Last Update: Sep.7 2026 ...` 에서 읽습니다. 표마다 갱신
+  주기가 달라(DRAM 일별 / NAND 주별) 계열별로 기준일이 다릅니다.
+- 값이 `min`~`max` 범위를 벗어나면 버리고 이유를 로그에 남깁니다.
+- 아무것도 매칭되지 않으면 0이 아닌 코드로 종료하면서 페이지에서 찾은 품목명을
+  출력하므로, 그걸 보고 `match` 만 고치면 됩니다.
+
+점검이 필요하면 Actions 탭의 **Run workflow** 에서 `dry_run` 을 켜세요. CSV를 쓰지
+않고 파싱 결과만 출력하며, 받아온 HTML을 아티팩트로 올립니다.
 
 `.github/workflows/deploy.yml` 이 평일 01:10 UTC(10:10 KST)에 이 스크립트를
 돌리고, 변경이 있으면 CSV를 커밋·푸시합니다. 실패하면 받아온 HTML을 아티팩트로 올려
@@ -83,13 +104,6 @@ node scripts/fetch-dramexchange.mjs --drop-placeholders  # 시드 샘플 행 일
 > 처음 켤 때 `workflow_dispatch` 로 한 번 수동 실행해 결과를 확인하세요. 페이지가
 > 자바스크립트로 표를 그리는 구조라면 정적 파싱으로는 잡히지 않으므로 헤드리스 브라우저가
 > 필요할 수 있습니다. 스크래핑 전에 대상 사이트의 이용약관과 robots.txt 도 확인하세요.
-
-### `data/memory-spot.csv` 의 시드 값에 대하여
-
-현재 들어 있는 2019-01 ~ 2025-08 월별 값은 **메모리 사이클의 대략적인 모양만 맞춘
-손으로 넣은 샘플**이며 실제 시세가 아닙니다. 그래서 전부 `source=PLACEHOLDER` 로 표시되어
-있고, UI에서 경고 배너와 점선으로 구분됩니다. 실제 데이터가 쌓이면
-`--drop-placeholders` 로 지우세요.
 
 ## 배포 (GitHub Pages)
 

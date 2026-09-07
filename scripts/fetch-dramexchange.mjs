@@ -6,10 +6,16 @@
  *   node scripts/fetch-dramexchange.mjs --dry-run      # 파싱 결과만 출력
  *   node scripts/fetch-dramexchange.mjs --html page.html   # 저장해둔 HTML로 파싱 (오프라인 디버깅)
  *   node scripts/fetch-dramexchange.mjs --dump raw.html    # 받아온 HTML을 파일로 저장
- *   node scripts/fetch-dramexchange.mjs --drop-placeholders # 시드 샘플(PLACEHOLDER) 행 제거
  *
- * 품목명이 하나도 매칭되지 않으면 0이 아닌 코드로 종료한다. 조용히 빈 커밋을
- * 남기는 것보다 CI가 빨간 게 낫다.
+ * 페이지 구조 (2026-09 기준):
+ *   각 현물가 표는 헤더행이
+ *     Item | Daily/Weekly High | Low | Session High | Session Low | Session Average | Change | History
+ *   이고, 대표 시세는 **Session Average** 열이다. 표 바로 앞에
+ *   "Last Update: Sep.7 2026 11:00 (GMT+8)" 형태로 기준일이 붙는다.
+ *
+ * 열 위치를 상수로 박지 않고 헤더 이름으로 찾고, 값이 상식적인 범위를 벗어나면
+ * 버린다. 아무것도 못 찾으면 0이 아닌 코드로 종료한다 — 조용히 틀린 값을
+ * 커밋하는 것이 가장 나쁜 실패 모드이기 때문이다.
  */
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -19,6 +25,11 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CSV_PATH = path.join(ROOT, "data", "memory-spot.csv");
 const MAP_PATH = path.join(ROOT, "scripts", "dramexchange-map.json");
 
+const MONTHS = {
+  jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
+  jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
+};
+
 function arg(name) {
   const i = process.argv.indexOf(name);
   return i >= 0 ? process.argv[i + 1] ?? true : undefined;
@@ -26,7 +37,6 @@ function arg(name) {
 const DRY_RUN = process.argv.includes("--dry-run");
 const DROP_PLACEHOLDERS = process.argv.includes("--drop-placeholders");
 
-/** Cheap tag-stripper: the page is plain server-rendered HTML tables. */
 function cellText(html) {
   return html
     .replace(/<[^>]*>/g, " ")
@@ -38,63 +48,67 @@ function cellText(html) {
     .trim();
 }
 
-/** Every <tr> on the page, as arrays of cell strings. */
-function extractRows(html) {
-  const rows = [];
-  for (const tr of html.match(/<tr[\s\S]*?<\/tr>/gi) ?? []) {
-    const cells = (tr.match(/<t[dh][\s\S]*?<\/t[dh]>/gi) ?? []).map(cellText);
-    if (cells.length > 1) rows.push(cells);
-  }
-  return rows;
+function rowsOf(tableHtml) {
+  return (tableHtml.match(/<tr[\s\S]*?<\/tr>/gi) ?? [])
+    .map((tr) => (tr.match(/<t[dh][\s\S]*?<\/t[dh]>/gi) ?? []).map(cellText))
+    .filter((cells) => cells.length > 1);
 }
 
-/**
- * Spot tables put the item name first and several numeric columns after it
- * (price, change, high/low). The first plain number in a sane price range is
- * the one we want; percentages and signed changes are skipped.
- */
-function priceFrom(cells) {
-  for (const cell of cells.slice(1)) {
-    if (/%/.test(cell)) continue;
-    if (/^[+-]/.test(cell)) continue;
-    const m = cell.match(/^\$?\s*([0-9]+(?:\.[0-9]+)?)\s*$/);
-    if (!m) continue;
-    const n = Number(m[1]);
-    if (Number.isFinite(n) && n > 0 && n < 10000) return n;
-  }
-  return null;
+/** "Last Update: Sep.7 2026 11:00 (GMT+8)" → "2026-09-07". */
+function parseLastUpdate(text) {
+  const m = text.match(/Last Update:?\s*([A-Za-z]{3})[a-z]*\.?\s*(\d{1,2}),?\s*(\d{4})/i);
+  if (!m) return null;
+  const month = MONTHS[m[1].toLowerCase()];
+  if (!month) return null;
+  return `${m[3]}-${String(month).padStart(2, "0")}-${String(Number(m[2])).padStart(2, "0")}`;
 }
 
-/** DRAMeXchange stamps the quote date on the page; fall back to today (UTC). */
-function pageDate(html) {
-  const m = html.match(/(20\d{2})[./-](\d{1,2})[./-](\d{1,2})/);
-  if (m) {
-    const [, y, mo, d] = m;
-    const iso = `${y}-${mo.padStart(2, "0")}-${d.padStart(2, "0")}`;
-    if (!Number.isNaN(Date.parse(iso))) return iso;
-  }
-  return new Date().toISOString().slice(0, 10);
-}
-
-export function parse(html, items) {
-  const rows = extractRows(html);
-  const date = pageDate(html);
+export function parse(html, config) {
+  // 표마다 기준일이 다르다(예: GDDR/LPDDR 표는 며칠 묵어 있음). 표 바로 앞의
+  // "Last Update" 를 그 표의 기준일로 쓴다.
+  const tables = [...html.matchAll(/<table[\s\S]*?<\/table>/gi)];
+  const wanted = config.priceColumn ?? "Session Average";
   const found = [];
-  const seen = new Set();
+  const labels = [];
+  const rejected = [];
+  const taken = new Set();
 
-  for (const item of items) {
-    const re = new RegExp(item.match, "i");
+  for (const table of tables) {
+    const rows = rowsOf(table[0]);
+    if (rows.length === 0) continue;
+
+    const header = rows.find((r) => /^item$/i.test(r[0]));
+    if (!header) continue;
+
+    let priceIdx = header.findIndex((h) => h.toLowerCase() === wanted.toLowerCase());
+    if (priceIdx < 0) priceIdx = header.findIndex((h) => /average/i.test(h) && !/change/i.test(h));
+    if (priceIdx < 0) continue;
+
+    const date = parseLastUpdate(html.slice(0, table.index).slice(-2000)) ?? parseLastUpdate(html);
+
     for (const cells of rows) {
-      if (!re.test(cells[0])) continue;
-      const price = priceFrom(cells);
-      if (price == null) continue;
-      if (seen.has(item.id)) break;
-      seen.add(item.id);
-      found.push({ date, series: item.id, price, unit: item.unit, source: "dramexchange" });
-      break;
+      if (cells === header) continue;
+      labels.push(cells[0]);
+
+      for (const item of config.items) {
+        if (taken.has(item.id)) continue;
+        if (!new RegExp(item.match, "i").test(cells[0])) continue;
+
+        const price = Number(String(cells[priceIdx] ?? "").replace(/[$,\s]/g, ""));
+        if (!Number.isFinite(price) || price <= 0) {
+          rejected.push(`${item.id}: "${cells[priceIdx]}" 는 숫자가 아닙니다`);
+          continue;
+        }
+        if ((item.min != null && price < item.min) || (item.max != null && price > item.max)) {
+          rejected.push(`${item.id}: ${price} 가 허용 범위(${item.min}~${item.max})를 벗어납니다`);
+          continue;
+        }
+        taken.add(item.id);
+        found.push({ date, series: item.id, price, unit: "USD", source: "dramexchange", label: cells[0] });
+      }
     }
   }
-  return { date, found, labels: rows.map((r) => r[0]).filter(Boolean) };
+  return { found, labels, rejected };
 }
 
 function parseCsv(text) {
@@ -109,7 +123,7 @@ function parseCsv(text) {
 
 function serializeCsv(header, rows) {
   const body = rows
-    .map((r) => [r.date, r.series, Number(r.price).toFixed(2), r.unit, r.source].join(","))
+    .map((r) => [r.date, r.series, Number(r.price).toFixed(3), r.unit, r.source].join(","))
     .join("\n");
   return `${header}\n${body}\n`;
 }
@@ -136,21 +150,22 @@ async function main() {
   const dumpFile = arg("--dump");
   if (typeof dumpFile === "string") await writeFile(dumpFile, html, "utf8");
 
-  const { date, found, labels } = parse(html, config.items);
+  const { found, labels, rejected } = parse(html, config);
+
+  for (const r of rejected) console.warn(`  (버림) ${r}`);
 
   if (found.length === 0) {
-    console.error("품목을 하나도 찾지 못했습니다. scripts/dramexchange-map.json 의 match 를 확인하세요.");
-    console.error("페이지에서 발견한 첫 열 값 (상위 40개):");
+    console.error("품목을 하나도 찾지 못했습니다. scripts/dramexchange-map.json 을 확인하세요.");
+    console.error("페이지에서 발견한 품목명 (상위 40개):");
     for (const l of [...new Set(labels)].slice(0, 40)) console.error(`  - ${l}`);
     process.exitCode = 1;
     return;
   }
 
-  console.log(`기준일 ${date} · ${found.length}개 품목 수집`);
-  for (const f of found) console.log(`  ${f.series}: ${f.price} ${f.unit}`);
-
-  const missing = config.items.filter((i) => !found.some((f) => f.series === i.id));
-  for (const m of missing) console.warn(`  (미수집) ${m.id}`);
+  for (const f of found) console.log(`  ${f.date}  ${f.series}  ${f.price}  ← "${f.label}"`);
+  for (const m of config.items.filter((i) => !found.some((f) => f.series === i.id))) {
+    console.warn(`  (미수집) ${m.id}`);
+  }
 
   if (DRY_RUN) return;
 
@@ -160,13 +175,13 @@ async function main() {
   // Upsert on (date, series) so re-running the job the same day is idempotent.
   const index = new Map(kept.map((r, i) => [`${r.date}|${r.series}`, i]));
   for (const f of found) {
-    const key = `${f.date}|${f.series}`;
-    const at = index.get(key);
+    const row = { date: f.date, series: f.series, price: f.price, unit: f.unit, source: f.source };
+    const at = index.get(`${f.date}|${f.series}`);
     if (at === undefined) {
-      index.set(key, kept.length);
-      kept.push(f);
+      index.set(`${f.date}|${f.series}`, kept.length);
+      kept.push(row);
     } else {
-      kept[at] = f;
+      kept[at] = row;
     }
   }
 

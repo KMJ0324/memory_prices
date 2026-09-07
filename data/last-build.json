@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-07T08:15:43.820Z",
+  "generatedAt": "2026-09-07T15:02:08.714Z",
   "stocks": [
     {
       "id": "samsung",
@@ -100,11 +100,11 @@
       "count": 1,
       "first": {
         "date": "2026-09-07",
-        "value": 54.133
+        "value": 54.3
       },
       "last": {
         "date": "2026-09-07",
-        "value": 54.133
+        "value": 54.3
       }
     },
     {

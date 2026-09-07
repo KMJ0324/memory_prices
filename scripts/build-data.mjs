@@ -199,9 +199,14 @@ async function main() {
 
   console.log(`\npublic/data/*.json 생성 완료 (${generatedAt})`);
 
-  // 전부 실패했으면 배포할 게 없다 — 조용히 빈 사이트를 올리지 않는다.
-  if (stocks.series.length === 0 && memory.series.length === 0) {
-    console.error("주가·현물가 모두 비어 있습니다.");
+  // 한 종목이라도 실패하는 건 화면에 경고로 뜨면 되지만, 한 축이 통째로 비면
+  // 겹쳐 볼 게 없다. 반쪽짜리를 새로 배포하느니 직전 배포를 그대로 두는 게 낫다.
+  if (stocks.series.length === 0) {
+    console.error("주가를 한 종목도 받지 못했습니다. 배포를 중단합니다.");
+    process.exit(1);
+  }
+  if (memory.series.length === 0) {
+    console.error("현물가 계열이 하나도 없습니다. 배포를 중단합니다.");
     process.exit(1);
   }
 }

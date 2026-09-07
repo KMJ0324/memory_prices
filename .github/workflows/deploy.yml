@@ -55,6 +55,17 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+      - name: TEMP TrendForce 구조 덤프
+        if: inputs.dry_run
+        continue-on-error: true
+        run: |
+          node scripts/fetch-trendforce.mjs --dump-dir debug/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f debug/
+          git diff --cached --quiet || git commit -m "chore(debug): TrendForce 페이지 스냅샷"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
       - name: Build static data
         env:
           MEMORY_API_URL: ${{ vars.MEMORY_API_URL }}

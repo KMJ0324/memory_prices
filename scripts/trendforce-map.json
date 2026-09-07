@@ -1,0 +1,9 @@
+{
+  "_comment": "TrendForce 고정거래가 페이지. 파서 매핑은 실제 표 구조 확인 후 채운다.",
+  "pages": [
+    { "id": "dram_contract", "url": "https://www.trendforce.com/price/dram/dram_contract" },
+    { "id": "nand_contract", "url": "https://www.trendforce.com/price/nand/nand_contract" },
+    { "id": "price_index", "url": "https://www.trendforce.com/price" },
+    { "id": "nand_root", "url": "https://www.trendforce.com/price/nand" }
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-07T07:06:35.742Z",
+  "generatedAt": "2026-09-07T07:08:47.517Z",
   "stocks": [
     {
       "id": "samsung",
@@ -306,6 +306,6 @@
     }
   ],
   "warnings": [
-    "SK하이닉스 ADR(HXSCL) 주가를 불러오지 못했습니다: HXSCL.K: 예상 밖 응답: []; HXSCL.O: 예상 밖 응답: []; HXSCL.N: 예상 밖 응답: []; HXSCL.A: 예상 밖 응답: []; HXSCL: 예상 밖 응답: [] / 예상 밖 응답: <!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name= / Yahoo Finance 429 Too Many Requests"
+    "SK하이닉스 ADR(HXSCL) 주가를 불러오지 못했습니다: HXSCL.K: 예상 밖 응답: []; HXSCL.O: 예상 밖 응답: []; HXSCL.N: 예상 밖 응답: []; HXSCL.A: 예상 밖 응답: []; HXSCL: 예상 밖 응답: [] / 예상 밖 응답: <!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name= / query1.finance.yahoo.com: Yahoo Finance 429 Too Many Requests; query2.finance.yahoo.com: Yahoo Finance 429 Too Many Requests; query1.finance.yahoo.com: Yahoo Finance 429 Too Many Requests; query2.finance.yahoo.com: Yahoo Finance 429 Too Many Requests"
   ]
 }

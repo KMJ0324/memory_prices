@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-08T01:33:23.506Z",
+  "generatedAt": "2026-09-08T13:33:31.111Z",
   "stocks": [
     {
       "id": "samsung",
@@ -11,7 +11,7 @@
       },
       "last": {
         "date": "2026-09-08",
-        "value": 274500
+        "value": 269500
       }
     },
     {
@@ -24,7 +24,7 @@
       },
       "last": {
         "date": "2026-09-08",
-        "value": 199700
+        "value": 198400
       }
     },
     {
@@ -37,7 +37,7 @@
       },
       "last": {
         "date": "2026-09-08",
-        "value": 1841500
+        "value": 1793000
       }
     },
     {
@@ -76,7 +76,7 @@
       },
       "last": {
         "date": "2026-09-08",
-        "value": 60540
+        "value": 57410
       }
     }
   ],
@@ -84,65 +84,65 @@
     {
       "id": "DRAM_DDR4_16Gb_3200",
       "source": "dramexchange",
-      "count": 1,
+      "count": 2,
       "first": {
         "date": "2026-09-07",
         "value": 93.25
       },
       "last": {
-        "date": "2026-09-07",
-        "value": 93.25
+        "date": "2026-09-08",
+        "value": 91.75
       }
     },
     {
       "id": "DRAM_DDR4_8Gb_3200",
       "source": "dramexchange",
-      "count": 1,
+      "count": 2,
       "first": {
         "date": "2026-09-07",
         "value": 45.357
       },
       "last": {
-        "date": "2026-09-07",
-        "value": 45.357
+        "date": "2026-09-08",
+        "value": 45.364
       }
     },
     {
       "id": "DRAM_DDR5_16Gb_4800",
       "source": "dramexchange",
-      "count": 1,
+      "count": 2,
       "first": {
         "date": "2026-09-07",
         "value": 54.3
       },
       "last": {
-        "date": "2026-09-07",
-        "value": 54.3
+        "date": "2026-09-08",
+        "value": 54.333
       }
     },
     {
       "id": "NAND_1Tb_QLC_CFM",
       "source": "cfm",
-      "count": 1,
+      "count": 2,
       "first": {
         "date": "2026-09-07",
         "value": 26
       },
       "last": {
-        "date": "2026-09-07",
+        "date": "2026-09-08",
         "value": 26
       }
     },
     {
       "id": "NAND_1Tb_TLC_CFM",
       "source": "cfm",
-      "count": 1,
+      "count": 2,
       "first": {
         "date": "2026-09-07",
         "value": 29
       },
       "last": {
-        "date": "2026-09-07",
+        "date": "2026-09-08",
         "value": 29
       }
     },

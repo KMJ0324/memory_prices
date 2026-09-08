@@ -71,7 +71,6 @@
     ],
     "label": "키옥시아",
     "currency": "JPY",
-    "color": "#c8b6ff",
-    "optional": true
+    "color": "#c8b6ff"
   }
 ]

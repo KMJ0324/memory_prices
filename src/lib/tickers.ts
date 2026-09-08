@@ -1,4 +1,6 @@
 import tickers from "../../data/tickers.json";
+import dramexchange from "../../scripts/dramexchange-map.json";
+import cfm from "../../scripts/cfm-map.json";
 import type { Series } from "./types";
 
 export interface TickerDef {
@@ -17,24 +19,25 @@ export interface TickerDef {
 /** Shared with `scripts/build-data.mjs` so the app and the cron job can't drift. */
 export const TICKERS: TickerDef[] = tickers as TickerDef[];
 
-export const MEMORY_COLORS: Record<string, string> = {
-  DRAM_DDR5_16Gb_4800: "#f28f3b",
-  DRAM_DDR4_16Gb_3200: "#e8743b",
-  DRAM_DDR4_8Gb_3200: "#f2c14e",
-  NAND_512Gb_TLC: "#c05dd6",
-  NAND_1Tb_TLC_CFM: "#7c5cd6",
-  NAND_1Tb_QLC_CFM: "#a78bfa",
-};
+interface MemoryItem {
+  id: string;
+  label?: string;
+  color?: string;
+}
 
-/** DRAMeXchange 품목명 그대로. eTT 는 미검사 커모디티 다이, 숫자는 스펙 등급. */
-export const MEMORY_LABELS: Record<string, string> = {
-  DRAM_DDR5_16Gb_4800: "DDR5 16Gb 4800/5600",
-  DRAM_DDR4_16Gb_3200: "DDR4 16Gb 3200",
-  DRAM_DDR4_8Gb_3200: "DDR4 8Gb 3200",
-  NAND_512Gb_TLC: "NAND 512Gb TLC Wafer",
-  NAND_1Tb_TLC_CFM: "NAND 1Tb TLC Wafer (CFM)",
-  NAND_1Tb_QLC_CFM: "NAND 1Tb QLC Wafer (CFM)",
-};
+/**
+ * 현물가 계열의 라벨·색상은 수집 매핑(scripts/*-map.json)에 있다. 앱과 수집
+ * 스크립트가 같은 파일을 읽으므로 계열을 추가해도 한쪽만 갱신되는 일이 없다.
+ */
+const MEMORY_ITEMS: MemoryItem[] = [...dramexchange.items, ...cfm.items];
+
+export const MEMORY_COLORS: Record<string, string> = Object.fromEntries(
+  MEMORY_ITEMS.filter((i) => i.color).map((i) => [i.id, i.color as string]),
+);
+
+export const MEMORY_LABELS: Record<string, string> = Object.fromEntries(
+  MEMORY_ITEMS.filter((i) => i.label).map((i) => [i.id, i.label as string]),
+);
 
 /** 고정거래가는 품목이 자동 발견되므로 팔레트를 순서대로 돌려 쓴다. */
 export const CONTRACT_PALETTE = [

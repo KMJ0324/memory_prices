@@ -1,85 +1,6 @@
 {
-  "generatedAt": "2026-09-08T01:29:20.005Z",
-  "stocks": [
-    {
-      "id": "samsung",
-      "source": "네이버 금융 (005930.KS)",
-      "count": 1470,
-      "first": {
-        "date": "2020-09-08",
-        "value": 58700
-      },
-      "last": {
-        "date": "2026-09-08",
-        "value": 274000
-      }
-    },
-    {
-      "id": "samsung-pref",
-      "source": "네이버 금융 (005935.KS)",
-      "count": 1470,
-      "first": {
-        "date": "2020-09-08",
-        "value": 50000
-      },
-      "last": {
-        "date": "2026-09-08",
-        "value": 199450
-      }
-    },
-    {
-      "id": "hynix",
-      "source": "네이버 금융 (000660.KS)",
-      "count": 1470,
-      "first": {
-        "date": "2020-09-08",
-        "value": 79400
-      },
-      "last": {
-        "date": "2026-09-08",
-        "value": 1843000
-      }
-    },
-    {
-      "id": "micron",
-      "source": "네이버 금융 MU.O (MU)",
-      "count": 1506,
-      "first": {
-        "date": "2020-09-08",
-        "value": 45.03
-      },
-      "last": {
-        "date": "2026-09-04",
-        "value": 1016.59
-      }
-    },
-    {
-      "id": "hynix-adr",
-      "source": "네이버 금융 SKHY.O (SKHY)",
-      "count": 41,
-      "first": {
-        "date": "2026-07-10",
-        "value": 168.01
-      },
-      "last": {
-        "date": "2026-09-04",
-        "value": 177
-      }
-    },
-    {
-      "id": "kioxia",
-      "source": "네이버 금융 285A.T (285A.T)",
-      "count": 419,
-      "first": {
-        "date": "2024-12-18",
-        "value": 1601
-      },
-      "last": {
-        "date": "2026-09-08",
-        "value": 60590
-      }
-    }
-  ],
+  "generatedAt": "2026-09-08T01:31:42.579Z",
+  "stocks": [],
   "memory": [
     {
       "id": "DRAM_DDR4_16Gb_3200",
@@ -201,6 +122,14 @@
       }
     }
   ],
-  "warnings": [],
-  "optionalFailures": []
+  "warnings": [
+    "삼성전자(005930.KS) 주가를 불러오지 못했습니다: 네이버 403 Forbidden / 005930.kr: Stooq 403 Forbidden / 005930.KS@query1.finance.yahoo.com: Yahoo Finance 403 Forbidden",
+    "삼성전자우(005935.KS) 주가를 불러오지 못했습니다: 네이버 403 Forbidden / 005935.kr: Stooq 403 Forbidden / 005935.KS@query1.finance.yahoo.com: Yahoo Finance 403 Forbidden",
+    "SK하이닉스(000660.KS) 주가를 불러오지 못했습니다: 네이버 403 Forbidden / 000660.kr: Stooq 403 Forbidden / 000660.KS@query1.finance.yahoo.com: Yahoo Finance 403 Forbidden",
+    "마이크론(MU) 주가를 불러오지 못했습니다: MU.O: 네이버 해외 403 Forbidden / mu.us: Stooq 403 Forbidden / MU@query1.finance.yahoo.com: Yahoo Finance 403 Forbidden",
+    "키옥시아(285A.T,285A) 주가를 불러오지 못했습니다: 285A.T: 네이버 해외 403 Forbidden; 285A.TO: 네이버 해외 403 Forbidden; 285A.JP: 네이버 해외 403 Forbidden; 285A: 네이버 해외 403 Forbidden / 285a.jp: Stooq 403 Forbidden / 285A.T@query1.finance.yahoo.com: Yahoo Finance 403 Forbidden; 285A@query1.finance.yahoo.com: Yahoo Finance 403 Forbidden"
+  ],
+  "optionalFailures": [
+    "SK하이닉스 ADR(SKHY): SKHY.K: 네이버 해외 403 Forbidden; SKHY.O: 네이버 해외 403 Forbidden; SKHY.N: 네이버 해외 403 Forbidden; SKHY: 네이버 해외 403 Forbidden; HXSCL.K: 네이버 해외 403 Forbidden / skhy.us: Stooq 403 Forbidden; hxscl.us: Stooq 403 Forbidden / SKHY@query1.finance.yahoo.com: Yahoo Finance 403 Forbidden; HXSCL@query1.finance.yahoo.com: Yahoo Finance 403 Forbidden"
+  ]
 }

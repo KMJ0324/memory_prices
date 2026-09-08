@@ -6,6 +6,7 @@ DRAM · NAND 현물가·고정거래가와 메모리 반도체 종목 주가를 
   NAND 512Gb TLC Wafer — 출처 DRAMeXchange, 값은 `Session Average`
 - **현물가(CFM)**: NAND 1Tb TLC·1Tb QLC Wafer — 출처 ChinaFlashMarket, 값은 `当前价`.
   출처가 다르면 같은 품목이라도 시세가 다릅니다(512Gb TLC: DXI $20.71 / CFM $22.00)
+- **주가**: 삼성전자 · 삼성전자우 · SK하이닉스 · SK하이닉스 ADR(SKHY) · 마이크론 · 키옥시아(285A.T)
 - **고정거래가(contract)**: DDR4 8Gb, DDR5 8GB SO-DIMM, NAND 128Gb MLC — 출처 TrendForce
 - **주가**: 삼성전자(005930.KS), 삼성전자우(005935.KS), SK하이닉스(000660.KS), 마이크론(MU)
 
@@ -82,7 +83,8 @@ date,series,price,unit,source
 - `source`: 출처(`dramexchange` / `cfm`). `PLACEHOLDER` 인 행이 하나라도 있으면
   그 계열 전체가 경고 배너 + 점선으로 표시됩니다.
 - 수집 품목은 `scripts/dramexchange-map.json` 의 `items`, `scripts/cfm-map.json` 의
-  `items` 에 적힌 것만입니다. 늘리려면 여기에 한 줄 추가하면 됩니다.
+  `items` 에 적힌 것만입니다. 각 항목의 `label`·`color` 는 앱도 같은 파일에서
+  읽으므로, 계열을 늘리려면 이 한 곳에 한 줄 추가하면 끝입니다.
 
 > **현물가 이력은 2026-09-07부터 쌓입니다.** DRAMeXchange는 당일 시세만 노출하고
 > 과거 시계열은 제공하지 않아, 수집을 시작한 날부터 하루씩 누적됩니다. 주가는

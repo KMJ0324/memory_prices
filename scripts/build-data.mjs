@@ -18,15 +18,21 @@ const CSV_PATH = path.join(ROOT, "data", "memory-spot.csv");
 const CONTRACT_CSV_PATH = path.join(ROOT, "data", "memory-contract.csv");
 const TRENDFORCE_MAP = path.join(ROOT, "scripts", "trendforce-map.json");
 const DRAMEXCHANGE_MAP = path.join(ROOT, "scripts", "dramexchange-map.json");
+const CFM_MAP = path.join(ROOT, "scripts", "cfm-map.json");
 
-const MEMORY_LABELS = {
-  DRAM_DDR5_16Gb_4800: "DDR5 16Gb 4800/5600",
-  DRAM_DDR5_16Gb_eTT: "DDR5 16Gb eTT",
-  DRAM_DDR4_8Gb_3200: "DDR4 8Gb 3200",
-  DRAM_DDR4_8Gb_eTT: "DDR4 8Gb eTT",
-  NAND_512Gb_TLC: "NAND 512Gb TLC",
-  NAND_128Gb_TLC: "NAND 128Gb TLC",
-};
+/** 라벨·색상은 수집 매핑에만 둔다. 앱도 같은 파일을 읽으므로 어긋날 수 없다. */
+async function memoryMeta() {
+  const meta = new Map();
+  for (const file of [DRAMEXCHANGE_MAP, CFM_MAP]) {
+    try {
+      const c = JSON.parse(await readFile(file, "utf8"));
+      for (const item of c.items ?? []) meta.set(item.id, item);
+    } catch {
+      /* 매핑이 없으면 id 를 그대로 라벨로 쓴다 */
+    }
+  }
+  return meta;
+}
 
 const YEARS = Number(process.env.STOCK_YEARS ?? 6);
 
@@ -346,13 +352,7 @@ async function buildMemory() {
     }
   }
 
-  let featured = new Set();
-  try {
-    const map = JSON.parse(await readFile(DRAMEXCHANGE_MAP, "utf8"));
-    featured = new Set(map.featured ?? []);
-  } catch {
-    /* 매핑이 없으면 전부 켠다 */
-  }
+  const meta = await memoryMeta();
 
   const rows = parseCsv(await readFile(CSV_PATH, "utf8"));
   const grouped = new Map();
@@ -369,12 +369,12 @@ async function buildMemory() {
     const sources = [...new Set(list.map((r) => r.source).filter(Boolean))];
     series.push({
       id,
-      label: MEMORY_LABELS[id] ?? id,
+      label: meta.get(id)?.label ?? id,
       kind: "memory",
       currency: "USD",
       unit: list[0]?.unit ?? "",
       source: sources.includes("PLACEHOLDER") ? "PLACEHOLDER" : sources.join(", ") || "unknown",
-      featured: featured.size === 0 || featured.has(id),
+      featured: true,
       points: list.map((r) => ({ date: r.date, value: r.price })),
     });
     console.log(`  ${id}: ${list.length}행 (${list[0].date} ~ ${list.at(-1).date})`);

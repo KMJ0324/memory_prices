@@ -3,9 +3,37 @@
   "source": "https://www.dramexchange.com/",
   "priceColumn": "Session Average",
   "items": [
-    { "id": "DRAM_DDR5_16Gb_4800", "match": "^DDR5 16Gb .*4800", "min": 1,   "max": 400 },
-    { "id": "DRAM_DDR4_16Gb_3200", "match": "^DDR4 16Gb .*3200", "min": 0.5, "max": 400 },
-    { "id": "DRAM_DDR4_8Gb_3200",  "match": "^DDR4 8Gb .*3200",  "min": 0.5, "max": 300 },
-    { "id": "NAND_512Gb_TLC",      "match": "^512Gb TLC",        "min": 0.5, "max": 300 }
+    {
+      "id": "DRAM_DDR5_16Gb_4800",
+      "match": "^DDR5 16Gb .*4800",
+      "min": 1,
+      "max": 400,
+      "label": "DDR5 16Gb 4800/5600",
+      "color": "#f28f3b"
+    },
+    {
+      "id": "DRAM_DDR4_16Gb_3200",
+      "match": "^DDR4 16Gb .*3200",
+      "min": 0.5,
+      "max": 400,
+      "label": "DDR4 16Gb 3200",
+      "color": "#e8743b"
+    },
+    {
+      "id": "DRAM_DDR4_8Gb_3200",
+      "match": "^DDR4 8Gb .*3200",
+      "min": 0.5,
+      "max": 300,
+      "label": "DDR4 8Gb 3200",
+      "color": "#f2c14e"
+    },
+    {
+      "id": "NAND_512Gb_TLC",
+      "match": "^512Gb TLC",
+      "min": 0.5,
+      "max": 300,
+      "label": "NAND 512Gb TLC Wafer",
+      "color": "#c05dd6"
+    }
   ]
 }

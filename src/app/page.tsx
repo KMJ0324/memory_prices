@@ -114,7 +114,7 @@ export default function Home() {
       <header className="header">
         <h1>메모리 가격 &amp; 메모리 주가 비교</h1>
         <p className="sub">
-          DRAM · NAND 현물가와 고정거래가를 삼성전자 · 삼성전자우 · SK하이닉스 · SK하이닉스 ADR · 마이크론 주가와 한 차트에서 비교합니다.
+          DRAM · NAND 현물가와 고정거래가를 삼성전자 · 삼성전자우 · SK하이닉스 · SK하이닉스 ADR · 마이크론 · 키옥시아 주가와 한 차트에서 비교합니다.
         </p>
       </header>
 

@@ -53,5 +53,25 @@
     "currency": "USD",
     "color": "#ff9db0",
     "optional": true
+  },
+  {
+    "id": "kioxia",
+    "symbol": [
+      "285A.T",
+      "285A"
+    ],
+    "stooq": [
+      "285a.jp"
+    ],
+    "naver": [
+      "285A.T",
+      "285A.TO",
+      "285A.JP",
+      "285A"
+    ],
+    "label": "키옥시아",
+    "currency": "JPY",
+    "color": "#c8b6ff",
+    "optional": true
   }
 ]

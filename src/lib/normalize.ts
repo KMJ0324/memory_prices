@@ -44,5 +44,6 @@ export function prepare(series: Series[], cutoff: string | null, mode: Mode): Se
 export function formatValue(value: number, series: Series, mode: Mode): string {
   if (mode === "normalized") return value.toFixed(1);
   if (series.currency === "KRW") return `${Math.round(value).toLocaleString("ko-KR")}원`;
+  if (series.currency === "JPY") return `${Math.round(value).toLocaleString("ko-KR")}엔`;
   return `$${value.toFixed(2)}`;
 }

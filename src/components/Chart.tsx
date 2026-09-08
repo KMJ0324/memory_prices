@@ -11,19 +11,22 @@ import type { Series } from "@/lib/types";
 
 echarts.use([LineChart, GridComponent, TooltipComponent, DataZoomComponent, CanvasRenderer]);
 
-type AxisGroup = "chip" | "krw" | "usd";
+/** "chip"(칩 단가, USD) 또는 "stock:<통화>". 통화가 늘어도 축이 자동으로 갈린다. */
+type AxisGroup = string;
+
+const CURRENCY_LABEL: Record<string, string> = { KRW: "원", USD: "USD", JPY: "엔" };
 
 /** Which y-axis a series belongs to when actual prices (not indexes) are shown. */
 function axisGroup(s: Series): AxisGroup {
   if (s.kind === "memory" || s.kind === "contract") return "chip";
-  return s.currency === "KRW" ? "krw" : "usd";
+  return `stock:${s.currency}`;
 }
 
-const AXIS_LABEL: Record<AxisGroup, string> = {
-  chip: "현물가 (USD)",
-  krw: "주가 (원)",
-  usd: "주가 (USD)",
-};
+function axisLabel(g: AxisGroup): string {
+  if (g === "chip") return "가격 (USD)";
+  const currency = g.slice("stock:".length);
+  return `주가 (${CURRENCY_LABEL[currency] ?? currency})`;
+}
 
 interface Props {
   series: Series[];
@@ -54,10 +57,12 @@ export default function Chart({ series, mode, contractOrder }: Props) {
 
     // In normalized mode everything shares one index axis; in actual mode each
     // currency/unit gets its own, otherwise a 70,000원 line flattens a $3 line.
+    // 축 순서는 칩 단가가 먼저, 그다음 통화별 주가. 계열이 없는 축은 만들지 않는다.
+    const present = [...new Set(series.map(axisGroup))];
     const groups: AxisGroup[] =
       mode === "normalized"
         ? []
-        : (["chip", "krw", "usd"] as AxisGroup[]).filter((g) => series.some((s) => axisGroup(s) === g));
+        : ["chip", ...present.filter((g) => g !== "chip").sort()].filter((g) => present.includes(g));
 
     const yAxis =
       mode === "normalized"
@@ -73,15 +78,16 @@ export default function Chart({ series, mode, contractOrder }: Props) {
           ]
         : groups.map((g, i) => ({
             type: "value" as const,
-            name: AXIS_LABEL[g],
+            name: axisLabel(g),
             nameTextStyle: { color: "#8b93a7" },
             position: i === 0 ? ("left" as const) : ("right" as const),
             offset: i <= 1 ? 0 : (i - 1) * 62,
             scale: true,
             axisLabel: {
               color: "#8b93a7",
+              // 원·엔은 자릿수가 커서 그대로 찍으면 축이 뭉갠다.
               formatter: (v: number) =>
-                g === "krw" ? `${Math.round(v / 1000)}k` : `${v}`,
+                g === "stock:KRW" || g === "stock:JPY" ? `${Math.round(v / 1000)}k` : `${v}`,
             },
             splitLine: { show: i === 0, lineStyle: { color: "#232838" } },
           }));

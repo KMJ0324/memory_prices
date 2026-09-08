@@ -32,6 +32,8 @@ const YEARS = Number(process.env.STOCK_YEARS ?? 6);
 
 // ---------------------------------------------------------------- 주가
 
+const UNITS = { KRW: "원", USD: "달러", JPY: "엔" };
+
 const UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36";
 
@@ -130,7 +132,7 @@ async function naverForeignOnce(ticker, symbol) {
     points.push({ date: `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6)}`, value });
   }
   if (points.length === 0) throw new Error("유효한 종가가 없습니다");
-  return { points, currency: "USD", via: `네이버 금융 ${symbol}` };
+  return { points, currency: ticker.currency ?? "USD", via: `네이버 금융 ${symbol}` };
 }
 
 /**
@@ -250,7 +252,7 @@ async function fetchTicker(ticker) {
         label: ticker.label,
         kind: "stock",
         currency,
-        unit: currency === "KRW" ? "원" : "달러",
+        unit: UNITS[currency] ?? currency,
         source: `${via} (${[ticker.symbol].flat()[0]})`,
         points,
       };

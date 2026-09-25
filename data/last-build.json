@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-09-24T14:11:09.611Z",
+  "generatedAt": "2026-09-25T14:34:29.059Z",
   "stocks": [
     {
       "id": "samsung",
       "source": "네이버 금융 (005930.KS)",
-      "count": 1469,
+      "count": 1468,
       "first": {
-        "date": "2020-09-24",
-        "value": 57800
+        "date": "2020-09-25",
+        "value": 57900
       },
       "last": {
         "date": "2026-09-23",
@@ -17,10 +17,10 @@
     {
       "id": "samsung-pref",
       "source": "네이버 금융 (005935.KS)",
-      "count": 1469,
+      "count": 1468,
       "first": {
-        "date": "2020-09-24",
-        "value": 50300
+        "date": "2020-09-25",
+        "value": 50700
       },
       "last": {
         "date": "2026-09-23",
@@ -30,10 +30,10 @@
     {
       "id": "hynix",
       "source": "네이버 금융 (000660.KS)",
-      "count": 1469,
+      "count": 1468,
       "first": {
-        "date": "2020-09-24",
-        "value": 84300
+        "date": "2020-09-25",
+        "value": 82900
       },
       "last": {
         "date": "2026-09-23",
@@ -45,38 +45,38 @@
       "source": "네이버 금융 MU.O (MU)",
       "count": 1507,
       "first": {
-        "date": "2020-09-24",
-        "value": 49.47
+        "date": "2020-09-25",
+        "value": 49.14
       },
       "last": {
-        "date": "2026-09-24",
-        "value": 1050.6127
+        "date": "2026-09-25",
+        "value": 1077.74
       }
     },
     {
       "id": "hynix-adr",
       "source": "네이버 금융 SKHY.O (SKHY)",
-      "count": 54,
+      "count": 55,
       "first": {
         "date": "2026-07-10",
         "value": 168.01
       },
       "last": {
-        "date": "2026-09-24",
-        "value": 185.695
+        "date": "2026-09-25",
+        "value": 188.14
       }
     },
     {
       "id": "kioxia",
       "source": "네이버 금융 285A.T (285A.T)",
-      "count": 428,
+      "count": 429,
       "first": {
         "date": "2024-12-18",
         "value": 1601
       },
       "last": {
-        "date": "2026-09-24",
-        "value": 54580
+        "date": "2026-09-25",
+        "value": 55780
       }
     }
   ],

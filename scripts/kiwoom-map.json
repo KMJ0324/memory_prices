@@ -1,0 +1,29 @@
+{
+  "_comment": "텔레그램 '키움 반도체' 채널 일별 스팟 포스트에서 과거 시계열을 백필하기 위한 매핑. 같은 날짜로 대조해 DRAMeXchange 수집값과 오차 3% 이내인 품목만 기존 계열에 합치고, 어긋나는 품목은 별도 계열로 둔다. scripts/import-kiwoom.mjs 로 수동 실행한다(일별 자동 수집 대상 아님).",
+  "items": [
+    {
+      "match": "DDR4 16Gb",
+      "id": "DRAM_DDR4_16Gb_3200",
+      "merge": true
+    },
+    {
+      "match": "DDR5 16Gb",
+      "id": "DRAM_DDR5_16Gb_4800",
+      "merge": true
+    },
+    {
+      "match": "TLC 512Gb",
+      "id": "NAND_512Gb_TLC",
+      "merge": true
+    },
+    {
+      "match": "TLC 1Tb",
+      "id": "NAND_1Tb_TLC_KIWOOM",
+      "merge": false,
+      "label": "NAND 1Tb TLC (키움)",
+      "color": "#5eb0e5",
+      "note": "CFM 의 1Tb TLC 와 같은 날짜 값이 8~11% 벌어지고 CFM 은 8일 내내 고정값이었다. 다른 시세로 보고 합치지 않는다.",
+      "featured": false
+    }
+  ]
+}

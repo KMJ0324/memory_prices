@@ -120,6 +120,30 @@ date,series,price,unit,source,period
 > 상세 표는 Gold+ 회원 전용이라 공개 표만 수집합니다. 공개 표는 최신 확정치보다
 > 한 주기 뒤처질 수 있습니다(예: 9월 초에도 `2H Jul` 값 노출).
 
+### 과거 시계열 백필 (키움 리서치 텔레그램)
+
+`scripts/import-kiwoom.mjs` 가 텔레그램 '키움 반도체' 채널 내보내기(HTML)에서
+일별 스팟 포스트를 뽑아 `data/memory-spot.csv` 의 빈 과거를 메웁니다. 자동
+수집 대상이 아니라 **수동 실행**입니다.
+
+```bash
+node scripts/import-kiwoom.mjs <export.html> --dry-run   # 결과만 확인
+node scripts/import-kiwoom.mjs <export.html>             # CSV 반영
+```
+
+- 이미 1차 출처(`dramexchange`/`cfm`)의 행이 있는 (날짜, 계열)은 건드리지
+  않습니다. 키움 행은 빈 과거를 메울 뿐이고, 같은 내보내기를 다시 돌려도
+  결과가 같습니다.
+- 매핑은 `scripts/kiwoom-map.json`. `merge: true` 는 기존 계열에 이어 붙이고,
+  `false` 는 별도 계열로 둡니다.
+
+> **합치기 전에 같은 날짜로 대조했습니다.** DDR4 16Gb(±1.7%, 8일 겹침),
+> DDR5 16Gb(±0.8%, 8일), NAND 512Gb TLC(±2.7%, 3일)는 수집값과 사실상 같은
+> 시계열이라 합쳤습니다. 반면 **TLC 1Tb 는 CFM 값과 8~11% 벌어지고** 그 기간
+> CFM 은 $29.00 에 고정돼 있어, 다른 시세로 보고 `NAND_1Tb_TLC_KIWOOM` 이라는
+> 별도 계열로 뒀습니다(기본 표시 꺼짐). 출처가 다른 값을 한 선에 이어 붙이면
+> 없는 추세가 생깁니다.
+
 ## 현물가 자동 갱신 (DRAMeXchange)
 
 `scripts/fetch-dramexchange.mjs` 가 https://www.dramexchange.com 의 현물가 표를 파싱해

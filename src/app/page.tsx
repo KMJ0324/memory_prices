@@ -12,6 +12,14 @@ const Chart = dynamic(() => import("@/components/Chart"), {
   loading: () => <div className="chart chart--loading">차트를 불러오는 중…</div>,
 });
 
+/** CSV 의 source 값을 사람이 읽는 이름으로. */
+const SOURCE_NAMES: Record<string, string> = {
+  dramexchange: "DRAMeXchange",
+  cfm: "ChinaFlashMarket",
+  kiwoom: "키움 리서치(과거분)",
+  trendforce: "TrendForce",
+};
+
 const RANGES = [
   { id: "3m", label: "3개월" },
   { id: "6m", label: "6개월" },
@@ -96,8 +104,17 @@ export default function Home() {
   const contractOrder = contractSeries.map((s) => s.id);
 
   // 같은 제공처를 종목 수만큼 늘어놓지 않는다: "네이버 금융 (005930.KS)" → "네이버 금융".
+  // 한 계열이 여러 출처로 이어 붙은 경우(과거 백필) source 가 쉼표 목록이라 쪼갠다.
   const providers = (list: Series[]) => [
-    ...new Set(list.map((s) => s.source.replace(/\s*\(.*\)\s*$/, "").trim()).filter(Boolean)),
+    ...new Set(
+      list
+        .flatMap((s) => s.source.split(","))
+        .map((raw) => {
+          const name = raw.replace(/\s*\(.*\)\s*$/, "").trim();
+          return SOURCE_NAMES[name] ?? name;
+        })
+        .filter(Boolean),
+    ),
   ];
   const stockSource = providers(stockSeries).join(", ");
   const memorySource = providers(memorySeries).join(", ");

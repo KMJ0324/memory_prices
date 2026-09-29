@@ -19,14 +19,17 @@ const CONTRACT_CSV_PATH = path.join(ROOT, "data", "memory-contract.csv");
 const TRENDFORCE_MAP = path.join(ROOT, "scripts", "trendforce-map.json");
 const DRAMEXCHANGE_MAP = path.join(ROOT, "scripts", "dramexchange-map.json");
 const CFM_MAP = path.join(ROOT, "scripts", "cfm-map.json");
+const KIWOOM_MAP = path.join(ROOT, "scripts", "kiwoom-map.json");
 
 /** 라벨·색상은 수집 매핑에만 둔다. 앱도 같은 파일을 읽으므로 어긋날 수 없다. */
 async function memoryMeta() {
   const meta = new Map();
-  for (const file of [DRAMEXCHANGE_MAP, CFM_MAP]) {
+  for (const file of [DRAMEXCHANGE_MAP, CFM_MAP, KIWOOM_MAP]) {
     try {
       const c = JSON.parse(await readFile(file, "utf8"));
-      for (const item of c.items ?? []) meta.set(item.id, item);
+      // 병합해야 한다. 뒤 매핑(키움 백필)에는 라벨·색상이 없는 항목이 있어
+      // 통째로 덮으면 앞 매핑의 라벨이 사라진다.
+      for (const item of c.items ?? []) meta.set(item.id, { ...meta.get(item.id), ...item });
     } catch {
       /* 매핑이 없으면 id 를 그대로 라벨로 쓴다 */
     }
@@ -374,7 +377,7 @@ async function buildMemory() {
       currency: "USD",
       unit: list[0]?.unit ?? "",
       source: sources.includes("PLACEHOLDER") ? "PLACEHOLDER" : sources.join(", ") || "unknown",
-      featured: true,
+      featured: meta.get(id)?.featured !== false,
       points: list.map((r) => ({ date: r.date, value: r.price })),
     });
     console.log(`  ${id}: ${list.length}행 (${list[0].date} ~ ${list.at(-1).date})`);

@@ -1,6 +1,7 @@
 import tickers from "../../data/tickers.json";
 import dramexchange from "../../scripts/dramexchange-map.json";
 import cfm from "../../scripts/cfm-map.json";
+import kiwoom from "../../scripts/kiwoom-map.json";
 import type { Series } from "./types";
 
 export interface TickerDef {
@@ -29,14 +30,23 @@ interface MemoryItem {
  * 현물가 계열의 라벨·색상은 수집 매핑(scripts/*-map.json)에 있다. 앱과 수집
  * 스크립트가 같은 파일을 읽으므로 계열을 추가해도 한쪽만 갱신되는 일이 없다.
  */
-const MEMORY_ITEMS: MemoryItem[] = [...dramexchange.items, ...cfm.items];
+const MEMORY_ITEMS: MemoryItem[] = [...dramexchange.items, ...cfm.items, ...kiwoom.items];
+
+/**
+ * 뒤 매핑(키움 백필)에는 라벨·색상이 없는 항목이 있어 통째로 덮으면 앞 매핑의
+ * 라벨이 사라진다. 정의된 필드만 겹쳐 쓴다.
+ */
+const MEMORY_META = MEMORY_ITEMS.reduce<Record<string, MemoryItem>>((acc, item) => {
+  acc[item.id] = { ...acc[item.id], ...item };
+  return acc;
+}, {});
 
 export const MEMORY_COLORS: Record<string, string> = Object.fromEntries(
-  MEMORY_ITEMS.filter((i) => i.color).map((i) => [i.id, i.color as string]),
+  Object.values(MEMORY_META).filter((i) => i.color).map((i) => [i.id, i.color as string]),
 );
 
 export const MEMORY_LABELS: Record<string, string> = Object.fromEntries(
-  MEMORY_ITEMS.filter((i) => i.label).map((i) => [i.id, i.label as string]),
+  Object.values(MEMORY_META).filter((i) => i.label).map((i) => [i.id, i.label as string]),
 );
 
 /** 고정거래가는 품목이 자동 발견되므로 팔레트를 순서대로 돌려 쓴다. */

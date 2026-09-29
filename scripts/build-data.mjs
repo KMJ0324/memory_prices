@@ -245,6 +245,49 @@ async function yahooOnce(ticker, host, symbol) {
   return { points, currency: result.meta?.currency ?? ticker.currency, via: `Yahoo Finance ${symbol}` };
 }
 
+/**
+ * 네이버·Stooq 종가는 액면분할이 보정되지 않는다. 분할일에 가격이 1/n 로
+ * 뛰면 차트에 실제로는 없는 급락이 생긴다. 하루 만의 변동이 크고 그 비율이
+ * 단순 정수배에 가까우면 분할로 보고 이전 구간을 현재 기준으로 되맞춘다.
+ *
+ * 40% 이상 움직이고 비율이 정수배의 5% 안에 들 때만 잡는다. 진짜 폭락을
+ * 분할로 오인할 여지가 남으므로 잡아낸 건은 전부 last-build.json 에 남긴다.
+ */
+const SPLIT_RATIOS = [2, 3, 4, 5, 6, 8, 10, 20];
+
+export function detectSplits(points) {
+  const found = [];
+  for (let i = 1; i < points.length; i++) {
+    const prev = points[i - 1].value;
+    const cur = points[i].value;
+    if (!(prev > 0 && cur > 0)) continue;
+    if (Math.abs(cur - prev) / prev < 0.4) continue;
+
+    for (const n of SPLIT_RATIOS) {
+      if (Math.abs(prev / cur - n) / n < 0.05) {
+        found.push({ date: points[i].date, index: i, factor: 1 / n, ratio: `1:${n}`, from: prev, to: cur });
+        break;
+      }
+      if (Math.abs(cur / prev - n) / n < 0.05) {
+        found.push({ date: points[i].date, index: i, factor: n, ratio: `${n}:1`, from: prev, to: cur });
+        break;
+      }
+    }
+  }
+  return found;
+}
+
+function applySplits(points, splits) {
+  if (splits.length === 0) return points;
+  const out = points.map((p) => ({ ...p }));
+  for (const s of splits) {
+    for (let i = 0; i < s.index; i++) {
+      out[i].value = Math.round(out[i].value * s.factor * 100) / 100;
+    }
+  }
+  return out;
+}
+
 async function fetchTicker(ticker) {
   const errors = [];
   // 순서가 곧 신뢰도 순. 앞의 소스가 러너 IP에서 막히면 다음으로 넘어간다.
@@ -255,8 +298,19 @@ async function fetchTicker(ticker) {
 
   for (const source of chain) {
     try {
-      const { points, currency, via } = await source(ticker);
+      const { points: raw, currency, via } = await source(ticker);
+      const splits = detectSplits(raw);
+      const points = applySplits(raw, splits);
+      if (splits.length > 0) {
+        for (const sp of splits) {
+          console.log(
+            `  ${ticker.label}: ${sp.date} 액면분할 ${sp.ratio} 추정 ` +
+              `(${sp.from} → ${sp.to}) — 이전 구간 보정`,
+          );
+        }
+      }
       return {
+        splits,
         id: ticker.id,
         label: ticker.label,
         kind: "stock",
@@ -470,6 +524,8 @@ async function main() {
     count: s.points.length,
     first: s.points[0],
     last: s.points.at(-1),
+    // 분할 보정은 과거 값을 바꾸므로 무엇을 왜 바꿨는지 남긴다.
+    ...(s.splits?.length ? { splits: s.splits.map(({ index, ...rest }) => rest) } : {}),
   });
   await writeFile(
     path.join(ROOT, "data", "last-build.json"),

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-02T15:44:55.837Z",
+  "generatedAt": "2026-10-05T18:21:56.546Z",
   "stocks": [
     {
       "id": "samsung",
@@ -45,38 +45,38 @@
       "source": "네이버 금융 MU.O (MU)",
       "count": 1507,
       "first": {
-        "date": "2020-10-02",
-        "value": 46.55
+        "date": "2020-10-05",
+        "value": 47.6
       },
       "last": {
-        "date": "2026-10-02",
-        "value": 1076.59
+        "date": "2026-10-05",
+        "value": 1063
       }
     },
     {
       "id": "hynix-adr",
       "source": "네이버 금융 SKHY.O (SKHY)",
-      "count": 60,
+      "count": 61,
       "first": {
         "date": "2026-07-10",
         "value": 168.01
       },
       "last": {
-        "date": "2026-10-02",
-        "value": 192.74
+        "date": "2026-10-05",
+        "value": 194.79
       }
     },
     {
       "id": "kioxia",
       "source": "네이버 금융 285A.T (285A.T)",
-      "count": 434,
+      "count": 435,
       "first": {
         "date": "2024-12-18",
         "value": 533.7
       },
       "last": {
-        "date": "2026-10-02",
-        "value": 19300
+        "date": "2026-10-05",
+        "value": 19120
       }
     }
   ],
@@ -84,40 +84,40 @@
     {
       "id": "DRAM_DDR4_16Gb_3200",
       "source": "kiwoom, dramexchange",
-      "count": 76,
+      "count": 77,
       "first": {
         "date": "2026-06-16",
         "value": 67.5
       },
       "last": {
-        "date": "2026-10-02",
+        "date": "2026-10-05",
         "value": 83.588
       }
     },
     {
       "id": "DRAM_DDR4_8Gb_3200",
       "source": "dramexchange",
-      "count": 19,
+      "count": 20,
       "first": {
         "date": "2026-09-07",
         "value": 45.357
       },
       "last": {
-        "date": "2026-10-02",
+        "date": "2026-10-05",
         "value": 46.321
       }
     },
     {
       "id": "DRAM_DDR5_16Gb_4800",
       "source": "kiwoom, dramexchange",
-      "count": 76,
+      "count": 77,
       "first": {
         "date": "2026-06-16",
         "value": 45
       },
       "last": {
-        "date": "2026-10-02",
-        "value": 58
+        "date": "2026-10-05",
+        "value": 58.067
       }
     },
     {
@@ -162,14 +162,14 @@
     {
       "id": "NAND_512Gb_TLC",
       "source": "kiwoom, dramexchange",
-      "count": 66,
+      "count": 67,
       "first": {
         "date": "2026-06-16",
         "value": 20.4
       },
       "last": {
-        "date": "2026-09-21",
-        "value": 19.883
+        "date": "2026-09-28",
+        "value": 19.396
       }
     }
   ],

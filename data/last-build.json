@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-10-07T16:23:55.224Z",
+  "generatedAt": "2026-10-08T16:25:57.939Z",
   "stocks": [
     {
       "id": "samsung",
       "source": "네이버 금융 (005930.KS)",
       "count": 1470,
       "first": {
-        "date": "2020-10-07",
-        "value": 59900
+        "date": "2020-10-08",
+        "value": 59700
       },
       "last": {
-        "date": "2026-10-07",
-        "value": 269000
+        "date": "2026-10-08",
+        "value": 263000
       }
     },
     {
@@ -19,12 +19,12 @@
       "source": "네이버 금융 (005935.KS)",
       "count": 1470,
       "first": {
-        "date": "2020-10-07",
-        "value": 51400
+        "date": "2020-10-08",
+        "value": 51700
       },
       "last": {
-        "date": "2026-10-07",
-        "value": 197300
+        "date": "2026-10-08",
+        "value": 194500
       }
     },
     {
@@ -32,12 +32,12 @@
       "source": "네이버 금융 (000660.KS)",
       "count": 1470,
       "first": {
-        "date": "2020-10-07",
-        "value": 83400
+        "date": "2020-10-08",
+        "value": 82900
       },
       "last": {
-        "date": "2026-10-07",
-        "value": 1715000
+        "date": "2026-10-08",
+        "value": 1686000
       }
     },
     {
@@ -45,37 +45,37 @@
       "source": "네이버 금융 MU.O (MU)",
       "count": 1507,
       "first": {
-        "date": "2020-10-07",
-        "value": 48.41
+        "date": "2020-10-08",
+        "value": 49.9
       },
       "last": {
-        "date": "2026-10-07",
-        "value": 1080.4
+        "date": "2026-10-08",
+        "value": 1074.32
       }
     },
     {
       "id": "hynix-adr",
       "source": "네이버 금융 SKHY.O (SKHY)",
-      "count": 63,
+      "count": 64,
       "first": {
         "date": "2026-07-10",
         "value": 168.01
       },
       "last": {
-        "date": "2026-10-07",
-        "value": 179.32
+        "date": "2026-10-08",
+        "value": 172.38
       }
     },
     {
       "id": "kioxia",
       "source": "네이버 금융 285A.T (285A.T)",
-      "count": 437,
+      "count": 438,
       "first": {
         "date": "2024-12-18",
         "value": 533.7
       },
       "last": {
-        "date": "2026-10-07",
+        "date": "2026-10-08",
         "value": 17900
       }
     }
@@ -84,65 +84,65 @@
     {
       "id": "DRAM_DDR4_16Gb_3200",
       "source": "kiwoom, dramexchange",
-      "count": 79,
+      "count": 80,
       "first": {
         "date": "2026-06-16",
         "value": 67.5
       },
       "last": {
-        "date": "2026-10-07",
-        "value": 83.588
+        "date": "2026-10-08",
+        "value": 83.64
       }
     },
     {
       "id": "DRAM_DDR4_8Gb_3200",
       "source": "dramexchange",
-      "count": 22,
+      "count": 23,
       "first": {
         "date": "2026-09-07",
         "value": 45.357
       },
       "last": {
-        "date": "2026-10-07",
-        "value": 46.357
+        "date": "2026-10-08",
+        "value": 46.4
       }
     },
     {
       "id": "DRAM_DDR5_16Gb_4800",
       "source": "kiwoom, dramexchange",
-      "count": 79,
+      "count": 80,
       "first": {
         "date": "2026-06-16",
         "value": 45
       },
       "last": {
-        "date": "2026-10-07",
-        "value": 58.4
+        "date": "2026-10-08",
+        "value": 58.667
       }
     },
     {
       "id": "NAND_1Tb_QLC_CFM",
       "source": "cfm",
-      "count": 17,
+      "count": 18,
       "first": {
         "date": "2026-09-07",
         "value": 26
       },
       "last": {
-        "date": "2026-09-30",
+        "date": "2026-10-08",
         "value": 26
       }
     },
     {
       "id": "NAND_1Tb_TLC_CFM",
       "source": "cfm",
-      "count": 17,
+      "count": 18,
       "first": {
         "date": "2026-09-07",
         "value": 29
       },
       "last": {
-        "date": "2026-09-30",
+        "date": "2026-10-08",
         "value": 29
       }
     },

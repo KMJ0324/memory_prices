@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-10-23T14:12:01.130Z",
+  "generatedAt": "2026-10-26T16:05:03.707Z",
   "stocks": [
     {
       "id": "samsung",
       "source": "네이버 금융 (005930.KS)",
       "count": 1470,
       "first": {
-        "date": "2020-10-23",
-        "value": 60200
+        "date": "2020-10-26",
+        "value": 60400
       },
       "last": {
-        "date": "2026-10-23",
+        "date": "2026-10-26",
         "value": 213500
       }
     },
@@ -19,12 +19,12 @@
       "source": "네이버 금융 (005935.KS)",
       "count": 1470,
       "first": {
-        "date": "2020-10-23",
-        "value": 53300
+        "date": "2020-10-26",
+        "value": 53500
       },
       "last": {
-        "date": "2026-10-23",
-        "value": 166200
+        "date": "2026-10-26",
+        "value": 165600
       }
     },
     {
@@ -32,12 +32,12 @@
       "source": "네이버 금융 (000660.KS)",
       "count": 1470,
       "first": {
-        "date": "2020-10-23",
-        "value": 83900
+        "date": "2020-10-26",
+        "value": 83200
       },
       "last": {
-        "date": "2026-10-23",
-        "value": 1263000
+        "date": "2026-10-26",
+        "value": 1290000
       }
     },
     {
@@ -45,38 +45,38 @@
       "source": "네이버 금융 MU.O (MU)",
       "count": 1507,
       "first": {
-        "date": "2020-10-23",
-        "value": 52.85
+        "date": "2020-10-26",
+        "value": 52.14
       },
       "last": {
-        "date": "2026-10-23",
-        "value": 883.88
+        "date": "2026-10-26",
+        "value": 906.3184
       }
     },
     {
       "id": "hynix-adr",
       "source": "네이버 금융 SKHY.O (SKHY)",
-      "count": 75,
+      "count": 76,
       "first": {
         "date": "2026-07-10",
         "value": 168.01
       },
       "last": {
-        "date": "2026-10-23",
-        "value": 136.73
+        "date": "2026-10-26",
+        "value": 141.48
       }
     },
     {
       "id": "kioxia",
       "source": "네이버 금융 285A.T (285A.T)",
-      "count": 448,
+      "count": 449,
       "first": {
         "date": "2024-12-18",
         "value": 533.7
       },
       "last": {
-        "date": "2026-10-23",
-        "value": 12755
+        "date": "2026-10-26",
+        "value": 12550
       }
     }
   ],
@@ -84,65 +84,65 @@
     {
       "id": "DRAM_DDR4_16Gb_3200",
       "source": "kiwoom, dramexchange",
-      "count": 91,
+      "count": 92,
       "first": {
         "date": "2026-06-16",
         "value": 67.5
       },
       "last": {
-        "date": "2026-10-23",
-        "value": 82.87
+        "date": "2026-10-26",
+        "value": 82.623
       }
     },
     {
       "id": "DRAM_DDR4_8Gb_3200",
       "source": "dramexchange",
-      "count": 34,
+      "count": 35,
       "first": {
         "date": "2026-09-07",
         "value": 45.357
       },
       "last": {
-        "date": "2026-10-23",
-        "value": 47.107
+        "date": "2026-10-26",
+        "value": 47
       }
     },
     {
       "id": "DRAM_DDR5_16Gb_4800",
       "source": "kiwoom, dramexchange",
-      "count": 91,
+      "count": 92,
       "first": {
         "date": "2026-06-16",
         "value": 45
       },
       "last": {
-        "date": "2026-10-23",
-        "value": 61.267
+        "date": "2026-10-26",
+        "value": 61.333
       }
     },
     {
       "id": "NAND_1Tb_QLC_CFM",
       "source": "cfm",
-      "count": 29,
+      "count": 30,
       "first": {
         "date": "2026-09-07",
         "value": 26
       },
       "last": {
-        "date": "2026-10-23",
+        "date": "2026-10-26",
         "value": 25
       }
     },
     {
       "id": "NAND_1Tb_TLC_CFM",
       "source": "cfm",
-      "count": 29,
+      "count": 30,
       "first": {
         "date": "2026-09-07",
         "value": 29
       },
       "last": {
-        "date": "2026-10-23",
+        "date": "2026-10-26",
         "value": 29
       }
     },
@@ -162,14 +162,14 @@
     {
       "id": "NAND_512Gb_TLC",
       "source": "kiwoom, dramexchange",
-      "count": 69,
+      "count": 70,
       "first": {
         "date": "2026-06-16",
         "value": 20.4
       },
       "last": {
-        "date": "2026-10-12",
-        "value": 18.833
+        "date": "2026-10-19",
+        "value": 18.592
       }
     }
   ],
